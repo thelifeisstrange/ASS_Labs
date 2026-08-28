@@ -1,0 +1,19 @@
+LAB 1 - Linux Shell Commands and Scripts
+
+1. Write and Execute the following linux shell commands.
+   who, whoami, echo, ls, ls -l, ls -a, pwd, cd, cat, cp, mv, rm,
+   mkdir, rmdir, chmod, date, clear, wc, touch, grep, sort, ps, sleep,
+   kill.
+
+2. Write a shell script to accept a directory name and display all
+   files ending with .c.
+
+3. Write a shell script to display the current date and time and also
+   the number of users logged into the system.
+
+4. Write a shell script to display all the lines in a single file in the
+   current directory having manipal as a word.
+
+5. Write a Shell Script that accepts a file name, starting and ending
+   line numbers as arguments and displays all lines between the
+   given line numbers.

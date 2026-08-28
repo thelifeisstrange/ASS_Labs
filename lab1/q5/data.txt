@@ -1,0 +1,10 @@
+Line 1: Introduction to Linux
+Line 2: Shell commands
+Line 3: who and whoami
+Line 4: echo and ls
+Line 5: cat cp mv rm
+Line 6: mkdir and rmdir
+Line 7: chmod date and wc
+Line 8: grep and sort
+Line 9: ps sleep and kill
+Line 10: End of file

@@ -1,0 +1,11 @@
+# Commands to execute Q1
+
+cd q1
+chmod +x sample.sh
+
+echo "--- Test 1: string shorter than 10 characters ---"
+echo "hello" | ./sample.sh
+
+echo
+echo "--- Test 2: string with at least 10 characters ---"
+echo "helloworld" | ./sample.sh

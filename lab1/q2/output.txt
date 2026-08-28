@@ -1,0 +1,4 @@
+Enter directory name:
+Files ending with .c:
+testdir/hello.c
+testdir/world.c

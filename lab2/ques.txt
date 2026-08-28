@@ -1,0 +1,17 @@
+LAB 2 - Linux Shell Scripts
+
+1. Write a shell code to accept a string from the terminal, and echo a suitable
+   message if it doesn’t have at least 10 characters using case and expr command.
+
+2. Devise a script that accepts two directory names d1 and d2, and deletes those
+   files in d2 which are identical to their names in d1.
+
+3. Write a script that accepts filenames as arguments. For every filename, it should
+   first check whether it exists in the current directory and then converts its name to
+   uppercase, but only if a file with the new name doesn’t exist.
+
+4. Write a script that displays a special formatted listing showing the permissions,
+   size, filename, last modification time, last access time of filenames supplied as
+   arguments.
+
+5. Write a shell script that displays the factorial of a given n

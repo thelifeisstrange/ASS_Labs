@@ -1,0 +1,16 @@
+# Commands to create directories/files and execute Q2
+
+cd q2
+
+mkdir -p d1 d2
+
+echo "This is report from d1" > d1/report.txt
+echo "Common notes in d1" > d1/notes.txt
+echo "Only in d1" > d1/only_d1.txt
+
+echo "This is report from d2" > d2/report.txt
+echo "Common notes in d2" > d2/notes.txt
+echo "Only in d2" > d2/unique.txt
+
+chmod +x sample.sh
+./sample.sh d1 d2

@@ -1,0 +1,5 @@
+Enter a string:
+The string does not have at least 10 characters (length = 5)
+
+Enter a string:
+The string has 10 or more characters (length = 10)

@@ -1,0 +1,15 @@
+Files in d1 before:
+notes.txt
+only_d1.txt
+report.txt
+
+Files in d2 before:
+notes.txt
+report.txt
+unique.txt
+
+Deleted d2/notes.txt (same name exists in d1)
+Deleted d2/report.txt (same name exists in d1)
+
+Files in d2 after:
+unique.txt

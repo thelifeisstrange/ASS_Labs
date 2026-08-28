@@ -1,0 +1,11 @@
+# Commands to execute Q5
+
+cd q5
+chmod +x sample.sh
+
+echo "--- Test 1: factorial of 5 ---"
+echo 5 | ./sample.sh
+
+echo
+echo "--- Test 2: factorial of 0 ---"
+echo 0 | ./sample.sh

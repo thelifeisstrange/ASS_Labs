@@ -1,0 +1,10 @@
+# Commands to create files and execute Q3
+
+cd q3
+
+echo "hello content" > hello.txt
+echo "world content" > world.txt
+echo "already uppercase" > LICENSE
+
+chmod +x sample.sh
+./sample.sh hello.txt world.txt LICENSE missing.txt

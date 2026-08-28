@@ -1,0 +1,2 @@
+This is not a C file.
+It should not appear in the .c listing.

@@ -1,0 +1,14 @@
+# Commands to create files and execute Q4
+
+cd q4
+
+echo "This is a sample report file for lab 2." > report.txt
+echo "data line 1" > data.txt
+echo "data line 2" >> data.txt
+echo "data line 3" >> data.txt
+
+chmod 644 report.txt
+chmod 755 data.txt
+
+chmod +x sample.sh
+./sample.sh report.txt data.txt missing.txt

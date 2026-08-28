@@ -1,0 +1,29 @@
+# Commands to create files/folders and execute Q2
+
+cd q2
+
+mkdir testdir
+
+cat > testdir/hello.c << 'EOF'
+#include <stdio.h>
+int main() {
+    printf("Hello\n");
+    return 0;
+}
+EOF
+
+cat > testdir/world.c << 'EOF'
+#include <stdio.h>
+int main() {
+    printf("World\n");
+    return 0;
+}
+EOF
+
+cat > testdir/notes.txt << 'EOF'
+This is not a C file.
+It should not appear in the .c listing.
+EOF
+
+chmod +x sample.sh
+echo testdir | ./sample.sh

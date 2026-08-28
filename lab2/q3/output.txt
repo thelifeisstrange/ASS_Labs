@@ -1,0 +1,4 @@
+Renamed hello.txt to HELLO.TXT
+Renamed world.txt to WORLD.TXT
+LICENSE is already in uppercase; no rename needed
+missing.txt does not exist in the current directory

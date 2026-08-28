@@ -1,0 +1,5 @@
+Enter file name:
+Lines containing the word manipal:
+2:I study at manipal every weekday.
+4:Our college is in manipal.
+6:Students from manipal university attend this lab.
