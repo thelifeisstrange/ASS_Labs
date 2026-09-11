@@ -1,5 +1,0 @@
-# Commands to execute Q1
-
-cd q1
-chmod +x commands.sh
-./commands.sh

@@ -1,0 +1,19 @@
+# Compiled C programs and object files
+sample
+*.o
+*.out
+a.out
+*.exe
+*.dSYM/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Editor / IDE
+*.swp
+*.swo
+*~
+.idea/
+.vscode/

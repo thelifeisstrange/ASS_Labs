@@ -1,8 +1,0 @@
-Current date and time:
-Thu Aug 27 20:34:39 IST 2026
-
-Number of users logged into the system:
-       1
-
-Logged in users:
-yogeshkulkarni   console      Aug  7 19:24 

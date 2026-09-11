@@ -1,5 +1,0 @@
-# Commands to execute Q3
-
-cd q3
-chmod +x sample.sh
-./sample.sh

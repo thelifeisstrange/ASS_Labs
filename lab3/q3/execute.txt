@@ -1,5 +1,0 @@
-# Commands to compile and execute Q3
-
-cd q3
-gcc sample.c -o sample
-./sample

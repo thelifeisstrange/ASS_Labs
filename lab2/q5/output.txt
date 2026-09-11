@@ -1,5 +1,0 @@
-Enter n:
-Factorial of 5 is 120
-
-Enter n:
-Factorial of 0 is 1
