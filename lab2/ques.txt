@@ -15,3 +15,12 @@ LAB 2 - Linux Shell Scripts
    arguments.
 
 5. Write a shell script that displays the factorial of a given n
+
+Additional Exercises:
+
+1. Write a shell script that takes two sorted numeric files as input and produces a
+   single sorted numeric file without any duplicate contents.
+
+2. Write a shell script that displays all the possible quadratic equation roots using
+   case.
+

@@ -11,6 +11,18 @@ a.out
 .AppleDouble
 .LSOverride
 
+# Extra questions (kept on disk and on the website, not committed)
+lab2/q6/
+lab2/q7/
+lab3/q5/
+lab3/q6/
+lab4/q5/
+lab4/q6/
+lab5/q5/
+lab5/q6/
+lab6/q5/
+lab6/q6/
+
 # Editor / IDE
 *.swp
 *.swo

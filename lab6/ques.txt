@@ -1,0 +1,24 @@
+LAB 6 - Multithreaded programming (Pthreads)
+
+1. Write a multithreaded program that generates the Fibonacci series. The
+   user enters on the command line how many Fibonacci numbers to generate.
+   Create a separate thread that generates the sequence into a shared array.
+   The parent must wait for the child thread to finish, then print the sequence.
+
+2. Write a multithreaded program that calculates the summation of
+   non-negative integers in a separate thread and passes the result to the
+   main thread.
+
+3. Write a multithreaded program for generating prime numbers from a given
+   starting number to a given ending number.
+
+4. Write a multithreaded program that performs the sum of even numbers and
+   odd numbers in an input array. Create a separate thread for even numbers
+   and another for odd numbers. The parent thread waits until both threads
+   are done.
+
+Additional Exercises:
+
+1. Write a multithreaded program for matrix multiplication.
+
+2. Write a multithreaded program for finding row sum and column sum.

@@ -11,3 +11,13 @@ LAB 3 - C Programs (UNIX utilities and stdio)
 
 4. Write a program to copy character-by-character. Copy is accomplished using
    calls to the functions referenced in stdio.h
+
+Additional Exercises:
+
+1. Write a program that shows the user all his/her C source programs and then
+   prompts interactively as to whether others should be granted read permission;
+   if affirmative such permission should be granted.
+
+2. Use lseek() to copy different parts (initial, middle and last) of the file
+   to others.
+

@@ -10,3 +10,12 @@ LAB 4 - File system: inode, stat, hard link, soft link
 
 4. Write a program to create a new soft link to an existing file and unlink the
    same. Accept the old path as input and print the new path.
+
+Additional Exercises:
+
+1. Write a program to find the inode number of all files in a directory. Take
+   the input as a directory name and print the inode numbers of all the files
+   in it.
+
+2. Write a program to print the full stat structure of every file in a directory.
+
