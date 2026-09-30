@@ -1,0 +1,2378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>ASS Viva Prep — Labs 1 to 5</title>
+<style>
+  @page { size: A4; margin: 12mm 10mm; }
+  body {
+    font-family: ui-sans-serif, Helvetica, Arial, sans-serif;
+    font-size: 10.5pt;
+    line-height: 1.35;
+    color: #111;
+    max-width: 100%;
+  }
+  h1 { font-size: 18pt; margin: 0 0 10pt; }
+  h2 { font-size: 13.5pt; margin: 16pt 0 6pt; page-break-after: avoid; }
+  h3 { font-size: 11.5pt; margin: 12pt 0 4pt; page-break-after: avoid; }
+  p, li { margin: 0 0 6pt; }
+  code, pre { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 8.5pt; }
+  pre { background: #f4f4f4; padding: 6pt 8pt; overflow-x: auto; page-break-inside: avoid; }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 6pt 0 12pt;
+    font-size: 8.2pt;
+    page-break-inside: auto;
+  }
+  thead { display: table-header-group; }
+  tr { page-break-inside: avoid; }
+  th, td {
+    border: 0.4pt solid #444;
+    padding: 3pt 4pt;
+    text-align: left;
+    vertical-align: top;
+  }
+  th { background: #eee; font-weight: 650; }
+  hr { border: none; border-top: 0.6pt solid #999; margin: 14pt 0; }
+</style>
+</head>
+<body>
+<h1>ASS Viva Prep — Labs 1 to 5</h1>
+<p>Madam will not stop at “what does this program do”. She will ask the <strong>name of the function</strong>, <strong>which header</strong>, <strong>return type</strong>, <strong>what 0 / −1 / NULL mean</strong>, <strong>why this flag</strong>, <strong>difference between two similar commands</strong>. Answer in one breath: <em>name + header + what it returns + one tiny example</em>.</p>
+<p>This file follows <strong>your actual programs</strong>, not a generic OS textbook.</p>
+<hr />
+<h2>How to answer (template)</h2>
+<ul>
+<li><strong>Command:</strong> what it does, one flag she might ask, difference from a cousin command.</li>
+<li><strong>System call / library function:</strong> <code>#include</code>, prototype, success/failure, errno/<code>perror</code>.</li>
+<li><strong>Type:</strong> size is not needed; say <em>signed/unsigned, used for what</em>.</li>
+<li>If you used it in a lab, say <strong>which question</strong>.</li>
+</ul>
+<hr />
+<h2>Tiny things she will still ask</h2>
+<h3>Shell punctuation</h3>
+<table>
+<thead>
+<tr>
+<th>Symbol / word</th>
+<th>What it is</th>
+<th>Exact meaning</th>
+<th>Example from your labs</th>
+<th>Viva trap</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>#!/bin/bash</code></td>
+<td>shebang</td>
+<td>Kernel reads first line and runs <code>/bin/bash</code> on this file</td>
+<td>every <code>.sh</code></td>
+<td>Without it, <code>./script</code> may run with <code>sh</code>, not bash</td>
+</tr>
+<tr>
+<td><code>$0</code></td>
+<td>special param</td>
+<td>Name used to invoke the script</td>
+<td>Lab 1 Q5 usage line</td>
+<td>Can be <code>./sample.sh</code> or full path</td>
+</tr>
+<tr>
+<td><code>$1</code> <code>$2</code> <code>$3</code></td>
+<td>positional</td>
+<td>1st, 2nd, 3rd argument</td>
+<td>Q5: file, start, end</td>
+<td><code>$10</code> is <code>$1</code> then <code>0</code> unless <code>${10}</code></td>
+</tr>
+<tr>
+<td><code>$#</code></td>
+<td>count</td>
+<td>Number of arguments, not including <code>$0</code></td>
+<td><code>[ $# -ne 3 ]</code></td>
+<td>Empty call → <code>$#</code> is 0</td>
+</tr>
+<tr>
+<td><code>$@</code></td>
+<td>all args</td>
+<td>Each argument as a <strong>separate</strong> word when quoted</td>
+<td>Lab 2 Q3 <code>for file in "$@"</code></td>
+<td><code>"$*"</code> is one string</td>
+</tr>
+<tr>
+<td><code>$?</code></td>
+<td>status</td>
+<td>Exit code of <strong>last</strong> command; 0 = success, non-zero = fail</td>
+<td>after <code>grep</code>/<code>gcc</code></td>
+<td>Check immediately; next command overwrites it</td>
+</tr>
+<tr>
+<td><code>`cmd`</code> / <code>$(cmd)</code></td>
+<td>substitution</td>
+<td>Replace with stdout of cmd</td>
+<td><code>len=\</code>expr ...``</td>
+<td>Trailing newline is stripped</td>
+</tr>
+<tr>
+<td><code>2&gt;/dev/null</code></td>
+<td>redirect</td>
+<td>File descriptor 2 (stderr) discarded</td>
+<td>factorial <code>[ "$n" -lt 0 ] 2&gt;/dev/null</code></td>
+<td><code>1</code> is stdout, <code>2</code> is stderr, <code>0</code> is stdin</td>
+</tr>
+<tr>
+<td><code>;</code></td>
+<td>sequence</td>
+<td>Run next after previous finishes</td>
+<td><code>gcc a.c ; ./a.out</code></td>
+<td>Always runs next even if first failed (<code>&amp;&amp;</code> does not)</td>
+</tr>
+<tr>
+<td><code>&amp;</code></td>
+<td>background</td>
+<td>Start job, shell does not wait</td>
+<td>Lab 5 Q4 <code>./sample &amp;</code></td>
+<td>PID printed; use <code>wait</code> or <code>fg</code></td>
+</tr>
+<tr>
+<td><code>\|</code></td>
+<td>pipe</td>
+<td>stdout of left becomes stdin of right</td>
+<td><code>who \| wc -l</code></td>
+<td>Both run concurrently</td>
+</tr>
+<tr>
+<td><code>&gt;</code></td>
+<td>redirect</td>
+<td>Overwrite stdout file</td>
+<td><code>sort ... &gt; merged.txt</code></td>
+<td>File created even if empty; destroys old content</td>
+</tr>
+<tr>
+<td><code>&gt;&gt;</code></td>
+<td>append</td>
+<td>Add to end of file</td>
+<td><code>echo hi &gt;&gt; log</code></td>
+<td>Creates file if missing</td>
+</tr>
+<tr>
+<td><code>[ ]</code> / <code>test</code></td>
+<td>builtin</td>
+<td><code>[</code> is <code>test</code>; <code>]</code> is required</td>
+<td><code>[ ! -d "$dirname" ]</code></td>
+<td>Spaces required: <code>[ -f f ]</code> not <code>[-f f]</code></td>
+</tr>
+<tr>
+<td><code>-f</code></td>
+<td>test</td>
+<td>True if path is a <strong>regular file</strong></td>
+<td>Lab 1 Q4</td>
+<td>False for directories and missing paths</td>
+</tr>
+<tr>
+<td><code>-d</code></td>
+<td>test</td>
+<td>True if path is a <strong>directory</strong></td>
+<td>Lab 1 Q2</td>
+<td>False for a normal file</td>
+</tr>
+<tr>
+<td><code>-e</code></td>
+<td>test</td>
+<td>True if path <strong>exists</strong> (any type)</td>
+<td>Lab 2 Q3</td>
+<td>True for file, dir, or symlink</td>
+</tr>
+<tr>
+<td><code>-eq -ne -lt -le -gt -ge</code></td>
+<td>numeric</td>
+<td>Integer compare inside <code>[ ]</code></td>
+<td><code>[ $i -le $n ]</code></td>
+<td>Do <strong>not</strong> use these for strings (<code>manipal</code> vs <code>10</code>)</td>
+</tr>
+<tr>
+<td><code>=</code> <code>!=</code></td>
+<td>string</td>
+<td>String equal / not equal</td>
+<td><code>[ "$file" = "$newname" ]</code></td>
+<td>In <code>[ ]</code> use <code>=</code>, not <code>==</code> (bash <code>[[ ]]</code> allows <code>==</code>)</td>
+</tr>
+<tr>
+<td><code>exit 0</code></td>
+<td>terminate</td>
+<td>Success to caller</td>
+<td>end of happy path</td>
+<td>Same as <code>return 0</code> in a function; in script it ends the script</td>
+</tr>
+<tr>
+<td><code>exit 1</code></td>
+<td>terminate</td>
+<td>Failure to caller</td>
+<td>usage errors</td>
+<td>Convention: 1 = general error</td>
+</tr>
+</tbody>
+</table>
+<h3>C punctuation and return values</h3>
+<table>
+<thead>
+<tr>
+<th>Token</th>
+<th>Type / kind</th>
+<th>What it holds</th>
+<th>Success / failure</th>
+<th>Where you used it</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>argc</code></td>
+<td><code>int</code></td>
+<td>Count of <code>argv</code> slots <strong>including</strong> program name</td>
+<td>—</td>
+<td>every C main with args</td>
+</tr>
+<tr>
+<td><code>argv[0]</code></td>
+<td><code>char *</code></td>
+<td>How the program was invoked</td>
+<td>never NULL in a normal run</td>
+<td><code>printf("Usage: %s ...", argv[0])</code></td>
+</tr>
+<tr>
+<td><code>argv[1]</code></td>
+<td><code>char *</code></td>
+<td>First user argument</td>
+<td>missing if <code>argc &lt; 2</code></td>
+<td>word, filename, <code>n</code>, oldpath</td>
+</tr>
+<tr>
+<td><code>NULL</code></td>
+<td>pointer constant</td>
+<td>“no object”</td>
+<td><code>fopen</code> / <code>opendir</code> / <code>strstr</code> fail</td>
+<td>Lab 3–5</td>
+</tr>
+<tr>
+<td><code>EOF</code></td>
+<td><code>int</code> (−1)</td>
+<td>End of file / stream</td>
+<td><code>getc</code> loop stops</td>
+<td>Lab 3 Q4</td>
+</tr>
+<tr>
+<td><code>0</code> from syscall</td>
+<td><code>int</code></td>
+<td>Usually <strong>success</strong></td>
+<td><code>stat</code>, <code>link</code>, <code>unlink</code>, <code>chmod</code></td>
+<td>Lab 4</td>
+</tr>
+<tr>
+<td><code>−1</code> from syscall</td>
+<td><code>int</code></td>
+<td><strong>Failure</strong>; <code>errno</code> set; call <code>perror</code></td>
+<td>all Unix calls</td>
+<td>Lab 3 extra, 4, 5</td>
+</tr>
+<tr>
+<td><code>pid_t</code></td>
+<td>signed integer type</td>
+<td>Process ID</td>
+<td><code>fork</code> special (see Lab 5)</td>
+<td>Lab 5</td>
+</tr>
+<tr>
+<td><code>uid_t</code> / <code>gid_t</code></td>
+<td>integer</td>
+<td>User / group id</td>
+<td>compare with <code>getuid()</code></td>
+<td>Lab 3 extra, Lab 4</td>
+</tr>
+<tr>
+<td><code>mode_t</code></td>
+<td>integer bits</td>
+<td>Type + <code>rwxrwxrwx</code></td>
+<td>pass to <code>chmod</code></td>
+<td>Lab 3 extra, Lab 4 <code>st_mode</code></td>
+</tr>
+<tr>
+<td><code>ino_t</code> / <code>st_ino</code></td>
+<td>unsigned integer</td>
+<td>Inode number on that device</td>
+<td>unique <strong>per filesystem</strong> (<code>st_dev</code>+<code>st_ino</code>)</td>
+<td>Lab 4</td>
+</tr>
+<tr>
+<td><code>off_t</code></td>
+<td>signed offset</td>
+<td>Byte position / file size</td>
+<td><code>lseek</code> returns −1 on error</td>
+<td>Lab 3 extra</td>
+</tr>
+<tr>
+<td><code>ssize_t</code></td>
+<td>signed size</td>
+<td>Byte count from <code>read</code>/<code>write</code>/<code>readlink</code></td>
+<td>0 = EOF for <code>read</code>; −1 = error</td>
+<td>Lab 3 extra, Lab 4 Q4</td>
+</tr>
+<tr>
+<td><code>size_t</code></td>
+<td>unsigned size</td>
+<td><code>sizeof</code>, <code>strlen</code>, buffer lengths</td>
+<td>never negative</td>
+<td>Lab 3 extra <code>.c</code> check</td>
+</tr>
+<tr>
+<td><code>FILE *</code></td>
+<td>pointer</td>
+<td>Buffered stdio stream</td>
+<td><code>NULL</code> if <code>fopen</code> fails</td>
+<td>Lab 3 Q1 Q2 Q4</td>
+</tr>
+<tr>
+<td><code>DIR *</code></td>
+<td>pointer</td>
+<td>Open directory</td>
+<td><code>NULL</code> if <code>opendir</code> fails</td>
+<td>Lab 3 extra, Lab 4 extra</td>
+</tr>
+<tr>
+<td><code>struct stat</code></td>
+<td>struct</td>
+<td>Snapshot of inode metadata</td>
+<td>filled by <code>stat</code>/<code>lstat</code>/<code>fstat</code></td>
+<td>Lab 4</td>
+</tr>
+<tr>
+<td><code>struct dirent</code></td>
+<td>struct</td>
+<td>One directory entry; use <code>d_name</code></td>
+<td><code>readdir</code> returns NULL at end</td>
+<td>Lab 3 extra, Lab 4 extra</td>
+</tr>
+</tbody>
+</table>
+<h3>Headers (name + what lives inside + which lab)</h3>
+<table>
+<thead>
+<tr>
+<th>Header</th>
+<th>What it declares (say these names)</th>
+<th>Typical return</th>
+<th>Labs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>&lt;stdio.h&gt;</code></td>
+<td><code>printf</code> <code>scanf</code> <code>fopen</code> <code>fclose</code> <code>fgets</code> <code>getc</code> <code>putc</code> <code>getchar</code> <code>fflush</code> <code>perror</code> <code>snprintf</code> <code>NULL</code> <code>EOF</code> <code>FILE</code> <code>stdin</code> <code>stdout</code></td>
+<td><code>FILE *</code> or <code>int</code>; <code>NULL</code>/<code>EOF</code> on fail</td>
+<td>3, 4, 5</td>
+</tr>
+<tr>
+<td><code>&lt;stdlib.h&gt;</code></td>
+<td><code>exit</code> <code>malloc</code> <code>free</code> <code>atoi</code> <code>NULL</code></td>
+<td><code>exit</code> does not return</td>
+<td>3, 5</td>
+</tr>
+<tr>
+<td><code>&lt;string.h&gt;</code></td>
+<td><code>strstr</code> <code>strlen</code> <code>strcmp</code> <code>strcpy</code></td>
+<td><code>strstr</code> → pointer or <code>NULL</code>; <code>strcmp</code> 0 if equal</td>
+<td>3 extra</td>
+</tr>
+<tr>
+<td><code>&lt;unistd.h&gt;</code></td>
+<td><code>fork</code> <code>execl</code> <code>getpid</code> <code>getppid</code> <code>getuid</code> <code>sleep</code> <code>link</code> <code>symlink</code> <code>readlink</code> <code>unlink</code> <code>read</code> <code>write</code> <code>lseek</code> <code>close</code> <code>chdir</code></td>
+<td>see each call; many use −1</td>
+<td>3 extra, 4, 5</td>
+</tr>
+<tr>
+<td><code>&lt;sys/types.h&gt;</code></td>
+<td><code>pid_t</code> <code>uid_t</code> <code>off_t</code> <code>ssize_t</code></td>
+<td>types only</td>
+<td>5 (often pulled in by others)</td>
+</tr>
+<tr>
+<td><code>&lt;sys/wait.h&gt;</code></td>
+<td><code>wait</code> <code>waitpid</code> <code>WIFEXITED</code> <code>WEXITSTATUS</code> <code>WIFSIGNALED</code> <code>WTERMSIG</code></td>
+<td><code>wait</code> → child PID or −1</td>
+<td>5</td>
+</tr>
+<tr>
+<td><code>&lt;sys/stat.h&gt;</code></td>
+<td><code>stat</code> <code>lstat</code> <code>fstat</code> <code>chmod</code> <code>struct stat</code> <code>S_IROTH</code> <code>S_ISREG</code></td>
+<td>0 / −1</td>
+<td>3 extra, 4</td>
+</tr>
+<tr>
+<td><code>&lt;fcntl.h&gt;</code></td>
+<td><code>open</code> <code>O_RDONLY</code> <code>O_WRONLY</code> <code>O_CREAT</code> <code>O_TRUNC</code></td>
+<td>fd ≥ 0 or −1</td>
+<td>3 extra Q6</td>
+</tr>
+<tr>
+<td><code>&lt;dirent.h&gt;</code></td>
+<td><code>opendir</code> <code>readdir</code> <code>closedir</code> <code>struct dirent</code></td>
+<td><code>DIR *</code> / <code>dirent *</code> or <code>NULL</code></td>
+<td>3 extra, 4 extra</td>
+</tr>
+<tr>
+<td><code>&lt;time.h&gt;</code></td>
+<td><code>ctime</code> <code>time_t</code></td>
+<td><code>ctime</code> → <code>char *</code> with <code>\n</code></td>
+<td>Lab 4 Q2 Q6</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h1>Lab 1 — Linux commands and tiny scripts</h1>
+<p>Q1 is <strong>every command</strong>. This is where “even <code>date</code>” comes from.</p>
+<h2>Q1 commands (full table — this is the “even date” section)</h2>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>What it does</th>
+<th>Important flags / form</th>
+<th>Sample</th>
+<th>Difference / viva note</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>who</code></td>
+<td>List <strong>login sessions</strong> (user, tty, time)</td>
+<td><code>who am i</code> current session</td>
+<td><code>who \| wc -l</code> Lab 1 Q3</td>
+<td>Not unique users; two terminals = two lines</td>
+</tr>
+<tr>
+<td><code>whoami</code></td>
+<td>Print <strong>effective user name</strong> only</td>
+<td>none</td>
+<td><code>whoami</code></td>
+<td>vs <code>who</code>: one word vs table of sessions</td>
+</tr>
+<tr>
+<td><code>id</code></td>
+<td>uid, gid, groups</td>
+<td><code>id -u</code> numeric uid</td>
+<td>(not in Q1 but she may ask)</td>
+<td>vs <code>whoami</code>: numbers + groups</td>
+</tr>
+<tr>
+<td><code>echo</code></td>
+<td>Write arguments to stdout</td>
+<td><code>-n</code> no newline</td>
+<td><code>echo "hi"</code> <code>$HOME</code></td>
+<td>Shell expands <code>$var</code> unless quoted</td>
+</tr>
+<tr>
+<td><code>ls</code></td>
+<td>List names in a directory</td>
+<td>default: current dir</td>
+<td><code>ls /tmp</code></td>
+<td>Does not show <code>.</code> files</td>
+</tr>
+<tr>
+<td><code>ls -l</code></td>
+<td>Long listing</td>
+<td>permissions, nlink, owner, group, size, <strong>mtime</strong>, name</td>
+<td>Lab 2 Q4</td>
+<td>First char: <code>-</code> file <code>d</code> dir <code>l</code> symlink</td>
+</tr>
+<tr>
+<td><code>ls -a</code></td>
+<td>All names</td>
+<td>includes <code>.</code> hidden</td>
+<td><code>ls -a</code></td>
+<td><code>.</code> = this dir, <code>..</code> = parent</td>
+</tr>
+<tr>
+<td><code>ls -lu</code></td>
+<td>Long listing using <strong>atime</strong></td>
+<td><code>-l</code> + <code>-u</code></td>
+<td>Lab 2 Q4 access column</td>
+<td><code>-u</code> without <code>-l</code> only sorts by atime</td>
+</tr>
+<tr>
+<td><code>ls -lc</code></td>
+<td>Long listing using <strong>ctime</strong></td>
+<td>status change</td>
+<td>compare with <code>stat</code></td>
+<td>chmod/link update ctime, not always mtime</td>
+</tr>
+<tr>
+<td><code>pwd</code></td>
+<td>Print working directory</td>
+<td>absolute path</td>
+<td><code>pwd</code></td>
+<td>Logical path; <code>pwd -P</code> physical (no symlinks)</td>
+</tr>
+<tr>
+<td><code>cd</code></td>
+<td>Change directory</td>
+<td><code>cd</code> home; <code>cd -</code> previous; <code>cd ..</code> parent</td>
+<td><code>cd lab4/q1</code></td>
+<td>Builtin; failure if no execute permission on dir</td>
+</tr>
+<tr>
+<td><code>cat</code></td>
+<td>Concatenate files to stdout</td>
+<td><code>cat f1 f2</code></td>
+<td><code>cat notes.txt</code></td>
+<td>No arguments → reads stdin</td>
+</tr>
+<tr>
+<td><code>cp</code></td>
+<td>Copy file</td>
+<td><code>cp src dest</code>; <code>-r</code> recursive</td>
+<td><code>cp a b</code></td>
+<td>New inode (usually); dest overwritten</td>
+</tr>
+<tr>
+<td><code>mv</code></td>
+<td>Rename or move</td>
+<td><code>mv old new</code></td>
+<td>Lab 2 Q3</td>
+<td>Same filesystem: rename directory entry, <strong>same inode</strong></td>
+</tr>
+<tr>
+<td><code>rm</code></td>
+<td>Unlink file</td>
+<td><code>-i</code> ask; <code>-r</code> recursive</td>
+<td>Lab 2 Q2</td>
+<td>No trash. Directory needs <code>-r</code> (or <code>rmdir</code> if empty)</td>
+</tr>
+<tr>
+<td><code>mkdir</code></td>
+<td>Create directory</td>
+<td><code>-p</code> create parents</td>
+<td><code>mkdir testdir</code></td>
+<td>Mode often 0755 minus umask</td>
+</tr>
+<tr>
+<td><code>rmdir</code></td>
+<td>Remove <strong>empty</strong> directory</td>
+<td>—</td>
+<td><code>rmdir testdir</code></td>
+<td>Non-empty → error; then <code>rm -r</code></td>
+</tr>
+<tr>
+<td><code>chmod</code></td>
+<td>Change permission bits</td>
+<td>octal or <code>u+x</code></td>
+<td><code>chmod 644 f</code></td>
+<td>See octal table below</td>
+</tr>
+<tr>
+<td><code>date</code></td>
+<td>Print or set clock</td>
+<td><code>date +%Y-%m-%d</code> <code>%H:%M:%S</code></td>
+<td>Lab 1 Q3</td>
+<td>This is <strong><code>date</code></strong>, not <code>dt</code>. Default = local date+time</td>
+</tr>
+<tr>
+<td><code>clear</code></td>
+<td>Clear terminal screen</td>
+<td>—</td>
+<td>—</td>
+<td>Sends ANSI escape; history still in scrollback</td>
+</tr>
+<tr>
+<td><code>wc</code></td>
+<td>Count lines/words/bytes</td>
+<td><code>-l</code> <code>-w</code> <code>-c</code></td>
+<td><code>who \| wc -l</code></td>
+<td><code>-c</code> bytes; <code>-m</code> characters</td>
+</tr>
+<tr>
+<td><code>touch</code></td>
+<td>Create empty file <strong>or</strong> update timestamps</td>
+<td><code>-a</code> atime only <code>-m</code> mtime only</td>
+<td><code>touch f</code></td>
+<td>Existing file: mtime+atime now</td>
+</tr>
+<tr>
+<td><code>grep</code></td>
+<td>Print lines matching pattern</td>
+<td><code>-n</code> <code>-w</code> <code>-i</code> <code>-v</code></td>
+<td>Lab 1 Q4 <code>-n -w manipal</code></td>
+<td><code>-w</code> whole word; regex engine (unlike <code>strstr</code>)</td>
+</tr>
+<tr>
+<td><code>sort</code></td>
+<td>Sort lines</td>
+<td><code>-n</code> numeric <code>-u</code> unique <code>-r</code> reverse</td>
+<td>Lab 2 extra</td>
+<td>Default is <strong>lexicographic</strong> (<code>10</code> before <code>2</code>)</td>
+</tr>
+<tr>
+<td><code>sed</code></td>
+<td>Stream editor</td>
+<td><code>-n '5,10p'</code> print range</td>
+<td>Lab 1 Q5</td>
+<td><code>-n</code> suppress default print; <code>p</code> print</td>
+</tr>
+<tr>
+<td><code>ps</code></td>
+<td>Process snapshot</td>
+<td><code>ps</code> yours; <code>ps -e</code>/<code>aux</code> all; <code>ps -l</code> long</td>
+<td>Lab 5 Q4</td>
+<td>STAT <code>R</code> run <code>S</code> sleep <code>Z</code> zombie <code>T</code> stopped</td>
+</tr>
+<tr>
+<td><code>sleep</code></td>
+<td>Pause</td>
+<td>argument = <strong>seconds</strong></td>
+<td>Lab 5 Q1 <code>sleep(2)</code> in C</td>
+<td>Shell: <code>sleep 5</code>. C: <code>unsigned sleep(unsigned)</code></td>
+</tr>
+<tr>
+<td><code>kill</code></td>
+<td>Send a signal</td>
+<td>default SIGTERM 15; <code>-9</code> SIGKILL</td>
+<td><code>kill PID</code></td>
+<td>Argument is <strong>PID</strong>, not name. <code>-9</code> cannot be caught</td>
+</tr>
+<tr>
+<td><code>expr</code></td>
+<td>Evaluate expression</td>
+<td>length: <code>expr "$s" : '.*'</code> ; <code>expr $a \* $b</code></td>
+<td>Lab 2 Q1 Q5</td>
+<td><code>*</code> must be <code>\*</code> or glob expands</td>
+</tr>
+<tr>
+<td><code>tr</code></td>
+<td>Translate characters</td>
+<td><code>tr 'a-z' 'A-Z'</code></td>
+<td>Lab 2 Q3</td>
+<td>Reads stdin; we piped <code>echo "$file"</code></td>
+</tr>
+<tr>
+<td><code>basename</code></td>
+<td>Strip directory</td>
+<td><code>basename /a/b/c</code> → <code>c</code></td>
+<td>Lab 2 Q2</td>
+<td>Opposite is <code>dirname</code></td>
+</tr>
+<tr>
+<td><code>awk</code></td>
+<td>Column processor</td>
+<td><code>{print $1}</code> <code>$5</code> <code>$6,$7,$8</code></td>
+<td>Lab 2 Q4</td>
+<td><code>$1</code> first field of <strong>ls -l</strong> line</td>
+</tr>
+<tr>
+<td><code>bc</code></td>
+<td>Calculator</td>
+<td><code>-l</code> math lib; <code>scale=4</code></td>
+<td>Lab 2 extra quadratic</td>
+<td>Needed for floats; <code>expr</code> is integers</td>
+</tr>
+</tbody>
+</table>
+<h3>chmod octal (she will ask)</h3>
+<table>
+<thead>
+<tr>
+<th>Octal digit</th>
+<th>Binary</th>
+<th>Letters</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>0</code></td>
+<td>000</td>
+<td><code>---</code></td>
+<td>no permission</td>
+</tr>
+<tr>
+<td><code>1</code></td>
+<td>001</td>
+<td><code>--x</code></td>
+<td>execute / search (dirs)</td>
+</tr>
+<tr>
+<td><code>2</code></td>
+<td>010</td>
+<td><code>-w-</code></td>
+<td>write</td>
+</tr>
+<tr>
+<td><code>3</code></td>
+<td>011</td>
+<td><code>-wx</code></td>
+<td>write + execute</td>
+</tr>
+<tr>
+<td><code>4</code></td>
+<td>100</td>
+<td><code>r--</code></td>
+<td>read</td>
+</tr>
+<tr>
+<td><code>5</code></td>
+<td>101</td>
+<td><code>r-x</code></td>
+<td>read + execute</td>
+</tr>
+<tr>
+<td><code>6</code></td>
+<td>110</td>
+<td><code>rw-</code></td>
+<td>read + write</td>
+</tr>
+<tr>
+<td><code>7</code></td>
+<td>111</td>
+<td><code>rwx</code></td>
+<td>all</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Mode</th>
+<th>Letters</th>
+<th>Typical use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>644</code></td>
+<td><code>rw-r--r--</code></td>
+<td>ordinary file (Lab 3 extra <code>0644</code> for new files)</td>
+</tr>
+<tr>
+<td><code>755</code></td>
+<td><code>rwxr-xr-x</code></td>
+<td>executable / directory</td>
+</tr>
+<tr>
+<td><code>600</code></td>
+<td><code>rw-------</code></td>
+<td>private file</td>
+</tr>
+<tr>
+<td><code>777</code></td>
+<td><code>rwxrwxrwx</code></td>
+<td>never recommend in viva</td>
+</tr>
+<tr>
+<td><code>0004</code> <code>S_IROTH</code></td>
+<td>others read</td>
+<td>Lab 3 extra <code>st_mode \| S_IROTH</code></td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Who</th>
+<th>Bit names</th>
+<th>Octal place</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>owner (user)</td>
+<td><code>S_IRUSR S_IWUSR S_IXUSR</code></td>
+<td>hundreds</td>
+</tr>
+<tr>
+<td>group</td>
+<td><code>S_IRGRP S_IWGRP S_IXGRP</code></td>
+<td>tens</td>
+</tr>
+<tr>
+<td>others</td>
+<td><code>S_IROTH S_IWOTH S_IXOTH</code></td>
+<td>units</td>
+</tr>
+</tbody>
+</table>
+<p>Directory: <strong>r</strong> = list names, <strong>x</strong> = <code>cd</code> / traverse, <strong>w</strong> = create/delete names.</p>
+<h3>ls -l permission string</h3>
+<table>
+<thead>
+<tr>
+<th>Position</th>
+<th>Meaning</th>
+<th>Examples</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>file type</td>
+<td><code>-</code> regular, <code>d</code> directory, <code>l</code> symlink, <code>c</code> char device</td>
+</tr>
+<tr>
+<td>2–4</td>
+<td>owner rwx</td>
+<td><code>rwx</code> or <code>rw-</code></td>
+</tr>
+<tr>
+<td>5–7</td>
+<td>group rwx</td>
+<td><code>r-x</code></td>
+</tr>
+<tr>
+<td>8–10</td>
+<td>others rwx</td>
+<td><code>r--</code></td>
+</tr>
+</tbody>
+</table>
+<p>Example: <code>-rw-r--r--</code> = regular file, 644.</p>
+<h3>Identity and time commands</h3>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Prints</th>
+<th>Source</th>
+<th>Lab</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>date</code></td>
+<td>calendar + clock</td>
+<td>system clock</td>
+<td>1 Q3</td>
+</tr>
+<tr>
+<td><code>who</code></td>
+<td>every login</td>
+<td>utmp</td>
+<td>1 Q3</td>
+</tr>
+<tr>
+<td><code>whoami</code></td>
+<td>one name</td>
+<td>effective uid</td>
+<td>1 Q1</td>
+</tr>
+<tr>
+<td><code>id</code></td>
+<td>uid gid groups</td>
+<td>same + extra</td>
+<td>compare</td>
+</tr>
+<tr>
+<td><code>pwd</code></td>
+<td>current dir</td>
+<td>process cwd</td>
+<td>1 Q1</td>
+</tr>
+</tbody>
+</table>
+<h3>grep vs Lab 3 C grep</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Shell <code>grep</code></th>
+<th>Your <code>strstr</code> grep</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Match</td>
+<td>regex + optional <code>-w</code> word</td>
+<td>substring anywhere</td>
+</tr>
+<tr>
+<td><code>"man"</code> vs <code>manipal</code></td>
+<td><code>-w</code> → no; default regex may yes</td>
+<td><strong>yes</strong> (substring)</td>
+</tr>
+<tr>
+<td>Line numbers</td>
+<td><code>-n</code></td>
+<td>you did not print them</td>
+</tr>
+<tr>
+<td>Binary</td>
+<td>real UNIX utility</td>
+<td>teaching subset</td>
+</tr>
+</tbody>
+</table>
+<h2>Lab 1 scripts</h2>
+<p><strong>Q2</strong> — <code>read dirname</code>, <code>[ ! -d ]</code>, <code>ls "$dirname"/*.c</code><br />
+- <code>-d</code> true if directory.<br />
+- Glob <code>*.c</code> expands to matching names; if none, bash may leave the glob or error depending on <code>nullglob</code>.<br />
+- Quote <code>"$dirname"</code> so spaces in path don’t break.</p>
+<p><strong>Q3</strong> — <code>date</code> then <code>who | wc -l</code><br />
+- Pipe: <code>who</code> lines → <code>wc -l</code> counts them = number of login sessions (one user can count twice if two terminals).</p>
+<p><strong>Q4</strong> — <code>grep -n -w "manipal" file</code><br />
+- <code>-w</code> whole word: <code>manipal</code> matches, <code>manipalxyz</code> does not.<br />
+- <code>-n</code> prints <code>12:the line</code>.<br />
+- <code>[ ! -f ]</code> regular file (not directory).</p>
+<p><strong>Q5</strong> — arguments <code>$1</code> file, <code>$2</code> start, <code>$3</code> end. <code>sed -n 's,ep'</code><br />
+- <code>$# -ne 3</code> means not exactly 3 args.<br />
+- <code>sed -n "5,10p"</code> print lines 5 through 10 only (<code>-n</code> = no default print, <code>p</code> = print).<br />
+- <code>head</code>/<code>tail</code> alternative; you used <code>sed</code>.</p>
+<hr />
+<h1>Lab 2 — Shell scripts</h1>
+<h2>Q1 — length ≥ 10 with <code>case</code> and <code>expr</code></h2>
+<pre><code class="language-bash">len=`expr &quot;$str&quot; : '.*'`
+case $len in
+[0-9])  ... too short ;;
+*)      ... ok ;;
+esac
+</code></pre>
+<ul>
+<li><code>expr STRING : REGEXP</code> returns length of match. <code>'.*'</code> matches whole string → length.  </li>
+<li><code>expr</code> is <strong>external</strong>; <code>$(( ))</code> is bash arithmetic (newer).  </li>
+<li><code>case</code> matches <strong>patterns</strong>, not numbers as C would.  </li>
+<li><code>[0-9]</code> is <strong>one digit</strong> 0–9, so lengths 0–9. Length 10+ falls in <code>*</code>.  </li>
+<li><code>;;</code> ends a case arm. <code>esac</code> ends case.  </li>
+<li><code>read str</code> reads one line from stdin into <code>str</code>.</li>
+</ul>
+<p><strong>Why not <code>[ $len -lt 10 ]</code>?</strong> Question forced <code>case</code> and <code>expr</code>.</p>
+<h2>Q2 — delete files in d2 that also exist in d1 (by <strong>name</strong>, not content)</h2>
+<ul>
+<li><code>$1</code> <code>d2=$2</code>  </li>
+<li><code>for file in "$d1"/*</code>  </li>
+<li><code>basename</code> strips directory → <code>notes.txt</code>  </li>
+<li><code>[ -f "$d2/$fname" ]</code> then <code>rm</code>  </li>
+<li>Identical <strong>name</strong>, not <code>cmp</code>/<code>diff</code>. She may trick you: same name different content → still deleted.</li>
+</ul>
+<h2>Q3 — rename to uppercase if free</h2>
+<ul>
+<li><code>"$@"</code> each argument  </li>
+<li><code>[ ! -e ]</code> does not exist  </li>
+<li><code>tr 'a-z' 'A-Z'</code> transliterate  </li>
+<li><code>mv</code> rename  </li>
+<li><code>[ "$file" -ef "$newname" ]</code> same file (macOS case-insensitive disk). On Linux usually not needed.</li>
+</ul>
+<h2>Q4 — formatted listing</h2>
+<p>From <code>ls -l</code>: field 1 permissions, 5 size, 6–8 mtime.<br />
+<code>ls -lu</code>: those date fields become <strong>atime</strong>.<br />
+<code>awk '{print $1}'</code> first column.<br />
+<code>printf "%-12s"</code> left pad width 12.<br />
+<code>basename</code> filename only.</p>
+<p><strong>mtime vs atime vs ctime</strong></p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Full name</th>
+<th>Changes when</th>
+<th>See it with</th>
+<th>Does <code>touch</code> change it?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>mtime</td>
+<td>modification time</td>
+<td>file <strong>contents</strong> written</td>
+<td><code>ls -l</code>, <code>st_mtime</code></td>
+<td>yes (default)</td>
+</tr>
+<tr>
+<td>atime</td>
+<td>access time</td>
+<td>file <strong>read</strong> (<code>cat</code>, <code>grep</code>)</td>
+<td><code>ls -lu</code>, <code>st_atime</code></td>
+<td>yes (default)</td>
+</tr>
+<tr>
+<td>ctime</td>
+<td>change time</td>
+<td><strong>inode</strong> changes: chmod, chown, link</td>
+<td><code>ls -lc</code>, <code>st_ctime</code></td>
+<td>usually as a side effect</td>
+</tr>
+</tbody>
+</table>
+<p><code>chmod</code> updates <strong>ctime</strong>, not mtime.</p>
+<h2>Q5 — factorial</h2>
+<ul>
+<li><code>while [ $i -le $n ]</code>  </li>
+<li><code>expr $fact \* $i</code> — <code>*</code> must be escaped or shell glob-expands.  </li>
+<li><code>expr</code> integer only; big n overflows shell arithmetic.  </li>
+<li>Negative rejected with <code>[ "$n" -lt 0 ]</code>.</li>
+</ul>
+<h2>Extra Q6 — merge sorted unique</h2>
+<p><code>sort -n -u file1 file2 &gt; out</code><br />
+- <code>-n</code> numeric (10 after 9, not after 1)<br />
+- <code>-u</code> unique<br />
+- <code>${3:-merged.txt}</code> default outfile if <code>$3</code> empty</p>
+<h2>Extra Q7 — quadratic with <code>case</code></h2>
+<ul>
+<li>Discriminant <code>b²−4ac</code> via <code>bc</code> (floating point; <code>expr</code> cannot do floats well)  </li>
+<li><code>case $kind in positive|zero|negative)</code>  </li>
+<li><code>scale=4</code> decimal places in <code>bc</code>  </li>
+<li><code>a=0</code> is not quadratic</li>
+</ul>
+<hr />
+<h1>Lab 3 — C / stdio / UNIX utilities</h1>
+<h2>argc / argv (every C lab)</h2>
+<pre><code>./sample manipal data.txt
+argv[0] = &quot;./sample&quot;
+argv[1] = &quot;manipal&quot;
+argv[2] = &quot;data.txt&quot;
+argc = 3
+</code></pre>
+<h2>Q1 — mini grep</h2>
+<ul>
+<li><code>fopen(path, "r")</code> → <code>FILE *</code> or <code>NULL</code>  </li>
+<li><code>fgets(buf, n, fp)</code> reads one line including <code>'\n'</code>, NULL at EOF  </li>
+<li><code>strstr(line, word)</code> pointer to first substring or NULL  </li>
+<li><code>fclose</code>  </li>
+<li>Not regex. <code>"man"</code> matches <code>manipal</code>. Real <code>grep -w</code> would not.</li>
+</ul>
+<p><strong>fopen modes:</strong> <code>"r"</code> read, <code>"w"</code> write (truncate/create), <code>"a"</code> append, <code>"r+"</code> read/write.</p>
+<h2>Q2 — mini more</h2>
+<ul>
+<li>Loop <code>fgets</code>, count lines, every 20 print <code>--More--</code>, <code>fflush(stdout)</code> then <code>getchar()</code>  </li>
+<li><strong>Why fflush?</strong> Prompt must appear before waiting. Buffered stdout.  </li>
+<li><code>getchar()</code> returns <code>int</code> (not <code>char</code>) so EOF fits.  </li>
+<li>Multiple files: <code>for (i = 1; i &lt; argc; i++)</code></li>
+</ul>
+<h2>Q3 — printf conversion specifiers</h2>
+<p>Say the letter <strong>and</strong> the C type:</p>
+<table>
+<thead>
+<tr>
+<th>Specifier</th>
+<th>Expected argument</th>
+<th>Prints</th>
+<th>Example in Q3 (<code>n=255</code>, <code>d=123.456</code>)</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>%d</code></td>
+<td><code>int</code></td>
+<td>signed decimal</td>
+<td><code>255</code></td>
+<td>most common integer</td>
+</tr>
+<tr>
+<td><code>%i</code></td>
+<td><code>int</code></td>
+<td>signed decimal</td>
+<td><code>255</code></td>
+<td>same as <code>%d</code> in <strong>printf</strong> (different in <code>scanf</code>)</td>
+</tr>
+<tr>
+<td><code>%u</code></td>
+<td><code>unsigned int</code></td>
+<td>unsigned decimal</td>
+<td><code>4000000000</code> with <code>u</code> suffix</td>
+<td>do not pass a negative <code>int</code></td>
+</tr>
+<tr>
+<td><code>%o</code></td>
+<td><code>unsigned int</code></td>
+<td>octal, no leading 0</td>
+<td><code>377</code></td>
+<td>255 = 3×64+7×8+7</td>
+</tr>
+<tr>
+<td><code>%x</code></td>
+<td><code>unsigned int</code></td>
+<td>hex lowercase</td>
+<td><code>ff</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>%X</code></td>
+<td><code>unsigned int</code></td>
+<td>hex uppercase</td>
+<td><code>FF</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>%f</code></td>
+<td><code>double</code></td>
+<td>fixed decimal</td>
+<td><code>123.456000</code></td>
+<td><code>float</code> is promoted to <code>double</code></td>
+</tr>
+<tr>
+<td><code>%e</code></td>
+<td><code>double</code></td>
+<td>scientific</td>
+<td><code>1.234560e+02</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>%E</code></td>
+<td><code>double</code></td>
+<td>scientific upper E</td>
+<td><code>1.234560E+02</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>%g</code></td>
+<td><code>double</code></td>
+<td>shorter of <code>%f</code>/<code>%e</code></td>
+<td><code>123.456</code></td>
+<td>trailing zeros dropped</td>
+</tr>
+<tr>
+<td><code>%G</code></td>
+<td><code>double</code></td>
+<td>like <code>%g</code> with <code>E</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>%c</code></td>
+<td><code>int</code> (character)</td>
+<td>one character</td>
+<td><code>A</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>%s</code></td>
+<td><code>char *</code></td>
+<td>string until <code>'\0'</code></td>
+<td><code>Manipal</code></td>
+<td>never pass <code>NULL</code></td>
+</tr>
+<tr>
+<td><code>%p</code></td>
+<td><code>void *</code></td>
+<td>pointer</td>
+<td><code>0x7f...</code></td>
+<td>cast <code>(void *)str</code></td>
+</tr>
+<tr>
+<td><code>%%</code></td>
+<td>none</td>
+<td>a percent sign</td>
+<td><code>%</code></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Flag / width</th>
+<th>Form</th>
+<th>Effect</th>
+<th>Q3 example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>width</td>
+<td><code>%10d</code></td>
+<td>at least 10 columns, pad spaces on <strong>left</strong></td>
+<td><code>[       255]</code></td>
+</tr>
+<tr>
+<td><code>-</code></td>
+<td><code>%-10d</code></td>
+<td>pad on <strong>right</strong> (left-justify)</td>
+<td><code>[255       ]</code></td>
+</tr>
+<tr>
+<td><code>0</code></td>
+<td><code>%08d</code></td>
+<td>pad with zeros</td>
+<td><code>[00000255]</code></td>
+</tr>
+<tr>
+<td><code>+</code></td>
+<td><code>%+d</code></td>
+<td>always show sign</td>
+<td><code>[+255]</code></td>
+</tr>
+<tr>
+<td>precision</td>
+<td><code>%.2f</code></td>
+<td>2 digits after decimal</td>
+<td><code>123.46</code> (rounded)</td>
+</tr>
+<tr>
+<td>both</td>
+<td><code>%10.2f</code></td>
+<td>width 10 and 2 decimals</td>
+<td><code>[    123.46]</code></td>
+</tr>
+</tbody>
+</table>
+<p><code>printf</code> returns the number of characters printed, or negative on error. Your program ignores it.</p>
+<h2>Q4 — character copy</h2>
+<ul>
+<li><code>getc(src)</code> / <code>putc(ch, dest)</code> from <code>stdio.h</code>  </li>
+<li><code>ch</code> is <strong><code>int</code></strong>, not <code>char</code>, because EOF is −1; if <code>char</code> is unsigned, loop never ends.  </li>
+<li><code>fopen</code> dest <code>"w"</code>  </li>
+<li>Count characters until EOF  </li>
+<li>Difference <code>getc</code> vs <code>fgetc</code>: same for practical purposes; <code>getc</code> may be a macro.</li>
+</ul>
+<p><strong>stdio vs Unix I/O</strong></p>
+<table>
+<thead>
+<tr>
+<th>Topic</th>
+<th>stdio (Lab 3 Q1–Q4)</th>
+<th>Unix I/O (Lab 3 extra Q6)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Handle type</td>
+<td><code>FILE *</code></td>
+<td><code>int</code> fd (0 stdin, 1 stdout, 2 stderr)</td>
+</tr>
+<tr>
+<td>Open</td>
+<td><code>fopen(path, "r"/"w")</code></td>
+<td><code>open(path, O_RDONLY)</code> or <code>O_WRONLY\|O_CREAT\|O_TRUNC</code></td>
+</tr>
+<tr>
+<td>Open fail</td>
+<td><code>NULL</code></td>
+<td><code>−1</code></td>
+</tr>
+<tr>
+<td>Read</td>
+<td><code>fgets</code>, <code>getc</code>, <code>fread</code></td>
+<td><code>read(fd, buf, n)</code> → <code>ssize_t</code></td>
+</tr>
+<tr>
+<td>Write</td>
+<td><code>putc</code>, <code>fputs</code>, <code>fwrite</code></td>
+<td><code>write(fd, buf, n)</code></td>
+</tr>
+<tr>
+<td>Position</td>
+<td><code>fseek</code></td>
+<td><code>lseek</code></td>
+</tr>
+<tr>
+<td>Close</td>
+<td><code>fclose</code></td>
+<td><code>close</code></td>
+</tr>
+<tr>
+<td>Buffering</td>
+<td>yes</td>
+<td>no (unless you add it)</td>
+</tr>
+<tr>
+<td>Header</td>
+<td><code>stdio.h</code></td>
+<td><code>fcntl.h</code> + <code>unistd.h</code></td>
+</tr>
+</tbody>
+</table>
+<p>Lab 3 Q4 = stdio. Lab 3 extra lseek = Unix fds.</p>
+<h2>Extra Q5 — chmod others-read on <strong>your</strong> <code>.c</code> files</h2>
+<ul>
+<li><code>opendir</code> / <code>readdir</code> / <code>closedir</code>  </li>
+<li><code>getuid()</code> my uid; skip files with <code>st.st_uid != me</code>  </li>
+<li>name ends with <code>.c</code>: <code>strcmp(name + len - 2, ".c")</code>  </li>
+<li><code>chmod(path, st.st_mode | S_IROTH)</code> <strong>OR</strong> in the others-read bit, keep other bits  </li>
+<li><code>S_IROTH</code> is <code>0004</code>. <code>S_IWOTH</code> write others, <code>S_IXOTH</code> execute others. Owner read <code>S_IRUSR</code>.</li>
+</ul>
+<h2>Extra Q6 — <code>lseek</code> thirds</h2>
+<ul>
+<li><code>open(..., O_RDONLY)</code> returns fd ≥ 0, or −1  </li>
+<li><code>O_WRONLY | O_CREAT | O_TRUNC</code>, mode <code>0644</code>  </li>
+<li><code>fstat(fd, &amp;st)</code> size in <code>st.st_size</code> (<code>off_t</code>)  </li>
+<li><code>lseek(fd, offset, whence)</code>  </li>
+<li><code>SEEK_SET</code> from start  </li>
+<li><code>SEEK_CUR</code> from current  </li>
+<li><code>SEEK_END</code> from end (offset can be negative)  </li>
+<li>Returns new offset or <code>(off_t)-1</code>  </li>
+<li><code>read</code>/<code>write</code> return <code>ssize_t</code> (bytes, 0 EOF, −1 error)  </li>
+<li>Split: first third, next third, remainder (so 10 bytes → 3, 3, 4)</li>
+</ul>
+<hr />
+<h1>Lab 4 — inode, stat, hard/soft links</h1>
+<h2>What is an inode?</h2>
+<p>Index node: metadata <strong>on disk</strong>, not the name. Contains type, permissions, uid/gid, size, timestamps, link count, pointers to data blocks. <strong>Filename lives in the directory</strong>, pointing to the inode number.</p>
+<p>Two names, <strong>same inode</strong> → hard links.<br />
+Soft link = <strong>another inode</strong> whose data is a path string.</p>
+<h2>Q1 — print inode</h2>
+<pre><code class="language-c">#include &lt;sys/stat.h&gt;
+int stat(const char *path, struct stat *buf);
+</code></pre>
+<ul>
+<li>0 success, −1 fail (<code>ENOENT</code> no file).  </li>
+<li>Print <code>st.st_ino</code>.  </li>
+<li><code>stat</code> <strong>follows</strong> symlinks. <code>lstat</code> does <strong>not</strong> (info about the link itself). Q4 uses <code>lstat</code> on the <code>.soft</code> file.</li>
+</ul>
+<h2>Q2 — every <code>struct stat</code> field (memorise names)</h2>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>C type (typical)</th>
+<th>Meaning</th>
+<th>What you print</th>
+<th>Viva extra</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>st_dev</code></td>
+<td><code>dev_t</code></td>
+<td>device id of the <strong>filesystem</strong></td>
+<td><code>%llu</code></td>
+<td>same for all files on that volume</td>
+</tr>
+<tr>
+<td><code>st_ino</code></td>
+<td><code>ino_t</code></td>
+<td>inode number</td>
+<td><code>%llu</code> Lab 4 Q1</td>
+<td>unique together with <code>st_dev</code></td>
+</tr>
+<tr>
+<td><code>st_mode</code></td>
+<td><code>mode_t</code></td>
+<td>type in high bits + rwx</td>
+<td><code>%o</code> e.g. <code>100644</code></td>
+<td><code>100</code> = regular file, <code>644</code> = perms</td>
+</tr>
+<tr>
+<td><code>st_nlink</code></td>
+<td><code>nlink_t</code></td>
+<td>number of <strong>hard</strong> links</td>
+<td><code>%llu</code></td>
+<td>soft links do not increase this on the target</td>
+</tr>
+<tr>
+<td><code>st_uid</code></td>
+<td><code>uid_t</code></td>
+<td>owner user id</td>
+<td><code>%u</code></td>
+<td>numeric; <code>501</code> on your Mac sample</td>
+</tr>
+<tr>
+<td><code>st_gid</code></td>
+<td><code>gid_t</code></td>
+<td>owner group id</td>
+<td><code>%u</code></td>
+<td><code>20</code> = staff on macOS often</td>
+</tr>
+<tr>
+<td><code>st_rdev</code></td>
+<td><code>dev_t</code></td>
+<td>device number if special file</td>
+<td><code>%llu</code></td>
+<td><strong>0</strong> for a normal file</td>
+</tr>
+<tr>
+<td><code>st_size</code></td>
+<td><code>off_t</code></td>
+<td>size in bytes</td>
+<td><code>%lld</code></td>
+<td>symlink: length of the <strong>path string</strong></td>
+</tr>
+<tr>
+<td><code>st_blksize</code></td>
+<td><code>blksize_t</code></td>
+<td>preferred I/O block</td>
+<td><code>%ld</code></td>
+<td>often 4096</td>
+</tr>
+<tr>
+<td><code>st_blocks</code></td>
+<td><code>blkcnt_t</code></td>
+<td>allocated 512-byte blocks</td>
+<td><code>%lld</code></td>
+<td>rounding can look “too big”</td>
+</tr>
+<tr>
+<td><code>st_atime</code></td>
+<td><code>time_t</code></td>
+<td>last access</td>
+<td><code>%ld</code> + <code>ctime()</code></td>
+<td>Lab 2 <code>ls -lu</code></td>
+</tr>
+<tr>
+<td><code>st_mtime</code></td>
+<td><code>time_t</code></td>
+<td>last content modify</td>
+<td><code>%ld</code> + <code>ctime()</code></td>
+<td>Lab 2 <code>ls -l</code></td>
+</tr>
+<tr>
+<td><code>st_ctime</code></td>
+<td><code>time_t</code></td>
+<td>last inode/status change</td>
+<td><code>%ld</code> + <code>ctime()</code></td>
+<td>chmod, link</td>
+</tr>
+</tbody>
+</table>
+<p><code>ctime(&amp;st.st_atime)</code> from <code>&lt;time.h&gt;</code> returns a string that <strong>already ends with newline</strong>.</p>
+<p><code>st_mode</code> value <code>100644</code> octal: <code>S_IFREG</code> + <code>0644</code>. Directory example <code>040755</code> (<code>S_IFDIR</code>).</p>
+<table>
+<thead>
+<tr>
+<th>Macro</th>
+<th>True when</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>S_ISREG(m)</code></td>
+<td>regular file</td>
+</tr>
+<tr>
+<td><code>S_ISDIR(m)</code></td>
+<td>directory</td>
+</tr>
+<tr>
+<td><code>S_ISLNK(m)</code></td>
+<td>symlink (use <code>lstat</code>)</td>
+</tr>
+<tr>
+<td><code>S_ISCHR(m)</code> / <code>S_ISBLK(m)</code></td>
+<td>device files</td>
+</tr>
+</tbody>
+</table>
+<h2>Q3 — hard link</h2>
+<pre><code class="language-c">int link(const char *oldpath, const char *newpath);  // unistd.h
+int unlink(const char *path);
+</code></pre>
+<ul>
+<li>New directory entry, <strong>same inode</strong>, <code>st_nlink</code> becomes 2.  </li>
+<li>After <code>unlink</code> of the new name, nlink back to 1; <strong>data stays</strong> while nlink &gt; 0.  </li>
+<li>When nlink hits 0 <strong>and</strong> no process has the file open, blocks are freed.  </li>
+<li>Hard link <strong>cannot</strong> normally cross filesystems; <strong>cannot</strong> link directories (except root).  </li>
+<li><code>ln old new</code> in shell.</li>
+</ul>
+<h2>Q4 — soft / symbolic link</h2>
+<pre><code class="language-c">int symlink(const char *target, const char *linkpath);
+ssize_t readlink(const char *path, char *buf, size_t n);
+</code></pre>
+<ul>
+<li>New inode. <code>readlink</code> copies the path text (<code>original.txt</code>, size 12).  </li>
+<li><code>lstat</code> on link: different inode from target.  </li>
+<li><code>stat</code> on link: <strong>follows</strong> to target (unless broken).  </li>
+<li>Soft link <strong>can</strong> cross devices and point to directories.  </li>
+<li>Broken link: target missing; <code>stat</code> fails, <code>lstat</code> still works.  </li>
+<li><code>ln -s target link</code> in shell.  </li>
+<li><code>unlink</code> removes the link, not the target.</li>
+</ul>
+<p><strong>Hard vs soft (say this table)</strong></p>
+<table>
+<thead>
+<tr>
+<th>Question</th>
+<th>Hard link (<code>link</code> / <code>ln</code>)</th>
+<th>Soft link (<code>symlink</code> / <code>ln -s</code>)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>New inode?</td>
+<td><strong>No</strong> — extra name for same inode</td>
+<td><strong>Yes</strong> — link has its own inode</td>
+</tr>
+<tr>
+<td><code>st_ino</code> of name vs original</td>
+<td><strong>equal</strong></td>
+<td><strong>different</strong></td>
+</tr>
+<tr>
+<td>Target <code>st_nlink</code></td>
+<td>increases by 1</td>
+<td>unchanged</td>
+</tr>
+<tr>
+<td><code>st_size</code> of the new name</td>
+<td>same as file data size</td>
+<td>length of path (<code>original.txt</code> → 12)</td>
+</tr>
+<tr>
+<td>Cross filesystem?</td>
+<td><strong>No</strong></td>
+<td><strong>Yes</strong></td>
+</tr>
+<tr>
+<td>Link to a directory?</td>
+<td><strong>No</strong> (normal users)</td>
+<td><strong>Yes</strong></td>
+</tr>
+<tr>
+<td>Original name deleted</td>
+<td>data remains (nlink still ≥ 1)</td>
+<td>link <strong>breaks</strong> (<code>stat</code> fails, <code>lstat</code> works)</td>
+</tr>
+<tr>
+<td>Followed by <code>stat</code>?</td>
+<td>N/A (it is the file)</td>
+<td><code>stat</code> follows; <code>lstat</code> does not</td>
+</tr>
+<tr>
+<td>Shell</td>
+<td><code>ln old new</code></td>
+<td><code>ln -s target linkname</code></td>
+</tr>
+<tr>
+<td>Your program</td>
+<td>Lab 4 Q3 <code>original.txt.hard</code></td>
+<td>Lab 4 Q4 <code>original.txt.soft</code></td>
+</tr>
+</tbody>
+</table>
+<h2>Extra Q5 / Q6 — directory walk</h2>
+<ul>
+<li><code>opendir</code> <code>readdir</code> skip <code>.</code> and <code>..</code>  </li>
+<li>Build <code>path</code> with <code>snprintf(path, sizeof path, "%s/%s", dir, name)</code>  </li>
+<li>Q5: print <code>st_ino</code> and name  </li>
+<li>Q6: same <code>print_stat</code> as Q2 for every file  </li>
+<li><code>d_name</code> is only the name, not full path → you must join.</li>
+</ul>
+<hr />
+<h1>Lab 5 — processes: fork, wait, exec, zombie, orphan</h1>
+<h2>Process vs program vs thread</h2>
+<ul>
+<li><strong>Program:</strong> file on disk (<code>a.out</code>).  </li>
+<li><strong>Process:</strong> running instance (PID, address space, open files).  </li>
+<li><strong>Thread (Lab 6):</strong> same address space. Lab 5 is <strong>processes</strong>.</li>
+</ul>
+<h2>fork() — the exam favourite</h2>
+<pre><code class="language-c">#include &lt;unistd.h&gt;
+pid_t fork(void);
+</code></pre>
+<p><strong>Three returns:</strong></p>
+<table>
+<thead>
+<tr>
+<th><code>fork()</code> return</th>
+<th>Process</th>
+<th>What the value <strong>is</strong></th>
+<th>What you should do</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>&gt; 0</code></td>
+<td>parent</td>
+<td>child’s PID</td>
+<td><code>wait</code> that pid or <code>wait(NULL)</code></td>
+</tr>
+<tr>
+<td><code>0</code></td>
+<td>child</td>
+<td>not a PID; just the marker</td>
+<td>optionally <code>exec</code>, then <code>exit</code></td>
+</tr>
+<tr>
+<td><code>-1</code></td>
+<td>parent only</td>
+<td>error; <strong>no child exists</strong></td>
+<td><code>perror("fork")</code>; return</td>
+</tr>
+</tbody>
+</table>
+<p>There is <strong>no</strong> child on failure.</p>
+<table>
+<thead>
+<tr>
+<th>Call</th>
+<th>Header</th>
+<th>Returns</th>
+<th>Blocks?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>getpid()</code></td>
+<td><code>unistd.h</code></td>
+<td>my PID</td>
+<td>no</td>
+</tr>
+<tr>
+<td><code>getppid()</code></td>
+<td><code>unistd.h</code></td>
+<td>parent PID (1 if orphaned)</td>
+<td>no</td>
+</tr>
+<tr>
+<td><code>sleep(n)</code></td>
+<td><code>unistd.h</code></td>
+<td>leftover seconds if interrupted</td>
+<td>yes, n seconds</td>
+</tr>
+</tbody>
+</table>
+<p>After success, <strong>two</strong> processes continue at the next statement. Memory is copy-on-write. File descriptors are duplicated.</p>
+<h2>wait / waitpid</h2>
+<pre><code class="language-c">#include &lt;sys/wait.h&gt;
+pid_t wait(int *status);       /* any child */
+pid_t waitpid(pid_t pid, int *status, int options);
+</code></pre>
+<ul>
+<li>Parent <strong>blocks</strong> until a child exits (unless <code>WNOHANG</code>).  </li>
+<li>Returns PID of the reaped child, or −1.  </li>
+<li><code>wait(NULL)</code> discard status.  </li>
+<li><code>wait(&amp;status)</code> fill status.</li>
+</ul>
+<p><strong>Status macros (Lab 5 extra Q6):</strong></p>
+<table>
+<thead>
+<tr>
+<th>Macro</th>
+<th>Header</th>
+<th>True / value</th>
+<th>When to use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>WIFEXITED(status)</code></td>
+<td><code>sys/wait.h</code></td>
+<td>non-zero if child called <code>exit</code>/<code>return</code></td>
+<td>check before reading exit code</td>
+</tr>
+<tr>
+<td><code>WEXITSTATUS(status)</code></td>
+<td>same</td>
+<td>0–255 exit code</td>
+<td>only if <code>WIFEXITED</code></td>
+</tr>
+<tr>
+<td><code>WIFSIGNALED(status)</code></td>
+<td>same</td>
+<td>killed by signal</td>
+<td><code>kill -9</code></td>
+</tr>
+<tr>
+<td><code>WTERMSIG(status)</code></td>
+<td>same</td>
+<td>signal number</td>
+<td>9 = SIGKILL</td>
+</tr>
+<tr>
+<td><code>WIFSTOPPED(status)</code></td>
+<td>same</td>
+<td>stopped (<code>Ctrl+Z</code>)</td>
+<td>job control</td>
+</tr>
+<tr>
+<td><code>status &gt;&gt; 8</code></td>
+<td>—</td>
+<td>same as <code>WEXITSTATUS</code> if normal exit</td>
+<td><code>exit(42)</code> → <code>42</code>; raw <code>status</code> often <code>10752</code></td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th><code>wait</code> form</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>wait(NULL)</code></td>
+<td>block until <strong>any</strong> child exits; throw status away</td>
+</tr>
+<tr>
+<td><code>wait(&amp;status)</code></td>
+<td>same, but fill <code>status</code></td>
+</tr>
+<tr>
+<td><code>waitpid(pid, &amp;status, 0)</code></td>
+<td>wait for <strong>that</strong> child</td>
+</tr>
+<tr>
+<td><code>waitpid(pid, &amp;status, WNOHANG)</code></td>
+<td>do not block; 0 if still running</td>
+</tr>
+</tbody>
+</table>
+<p><code>exit(n)</code> (<code>stdlib.h</code>) ends <strong>this</strong> process. <code>_exit</code> skips stdio flush. <code>return</code> from <code>main</code> = <code>exit</code>.</p>
+<h2>Q1 — parent waits</h2>
+<p>Child <code>sleep(2)</code> <code>exit(0)</code>. Parent prints then <code>wait(&amp;status)</code> then continues. Without <code>wait</code>, parent could finish first.</p>
+<h2>Q2 — exec</h2>
+<pre><code class="language-c">int execl(const char *path, const char *arg0, ... /*, NULL */);
+</code></pre>
+<ul>
+<li><strong>Replaces</strong> the child’s memory with a new program. Same PID.  </li>
+<li>Returns <strong>only on failure</strong> (−1). Success = no return.  </li>
+<li>Last argument <strong>must be NULL</strong>.  </li>
+<li><code>arg0</code> is what the new program sees as <code>argv[0]</code> (often the name).  </li>
+<li>You load <code>./program1</code> = compiled Q1.</li>
+</ul>
+<p><strong>exec family (she will ask the letters):</strong></p>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Path</th>
+<th>Arguments</th>
+<th>Environment</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>execl</code></td>
+<td>full/relative path you give</td>
+<td>list: <code>arg0, arg1, ..., NULL</code></td>
+<td>inherits</td>
+<td><strong>Lab 5 Q2</strong> <code>execl("./program1", "program1", NULL)</code></td>
+</tr>
+<tr>
+<td><code>execlp</code></td>
+<td>searches <code>$PATH</code> if no <code>/</code></td>
+<td>list + NULL</td>
+<td>inherits</td>
+<td><code>p</code> = PATH</td>
+</tr>
+<tr>
+<td><code>execv</code></td>
+<td>path</td>
+<td><code>char *argv[]</code>, last <code>NULL</code></td>
+<td>inherits</td>
+<td><code>v</code> = vector</td>
+</tr>
+<tr>
+<td><code>execvp</code></td>
+<td>PATH</td>
+<td>vector</td>
+<td>inherits</td>
+<td>common for shells</td>
+</tr>
+<tr>
+<td><code>execle</code></td>
+<td>path</td>
+<td>list + NULL</td>
+<td>you pass <code>envp[]</code></td>
+<td><code>e</code> = environment</td>
+</tr>
+<tr>
+<td><code>execve</code></td>
+<td>path</td>
+<td>vector</td>
+<td><code>envp</code></td>
+<td>the <strong>syscall</strong>; others wrap this</td>
+</tr>
+</tbody>
+</table>
+<p>Letters: <strong>l</strong>ist, <strong>v</strong>ector, <strong>p</strong>ath search, <strong>e</strong>nv. Success → <strong>does not return</strong>. Failure → <code>−1</code>, <code>perror</code>. Last list arg <strong>must be NULL</strong>. Same PID after exec; memory image replaced.</p>
+<h2>Q3 — print PID / PPID / fork return</h2>
+<p>Child: <code>getpid</code>, <code>getppid</code> (= parent), fork return <strong>0</strong>.<br />
+Parent: <code>getpid</code>, <code>getppid</code> (= shell), fork return <strong>child pid</strong>.<br />
+You <code>wait(NULL)</code> so prints don’t interleave.</p>
+<h2>Q4 — zombie</h2>
+<ul>
+<li>Child <code>exit</code> immediately. Parent <code>sleep(15)</code> <strong>without wait</strong>.  </li>
+<li>Child is dead but has a <strong>PCB slot</strong> holding exit status until parent waits. <code>ps</code> STAT <strong><code>Z</code></strong>, command <code>&lt;defunct&gt;</code>.  </li>
+<li>When parent later exits without wait, <strong>init (PID 1)</strong> adopts and reaps.  </li>
+<li>Why exist: so parent can still <code>wait</code> and read the exit code.  </li>
+<li>Too many zombies → PID table full (bad).</li>
+</ul>
+<p>Run: <code>./sample &amp;</code> then <code>ps -l</code> or <code>ps aux | grep Z</code>.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Zombie (Q4)</th>
+<th>Orphan (extra Q5)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Child</td>
+<td><strong>dead</strong> (<code>exit</code> already)</td>
+<td><strong>alive</strong> (<code>sleep</code>)</td>
+</tr>
+<tr>
+<td>Parent</td>
+<td><strong>alive</strong>, not calling <code>wait</code></td>
+<td><strong>dead</strong> (<code>exit</code> first)</td>
+</tr>
+<tr>
+<td><code>ps</code> STAT</td>
+<td><code>Z</code> <code>&lt;defunct&gt;</code></td>
+<td>normal (<code>S</code> while sleeping)</td>
+</tr>
+<tr>
+<td>PPID of child</td>
+<td>still the sleeping parent</td>
+<td>becomes <strong>1</strong> (init/launchd)</td>
+</tr>
+<tr>
+<td>Why</td>
+<td>keep exit status until <code>wait</code></td>
+<td>child must have a parent</td>
+</tr>
+<tr>
+<td>Cleanup</td>
+<td>parent <code>wait</code>, or parent dies and init reaps</td>
+<td>init is already the parent</td>
+</tr>
+</tbody>
+</table>
+<h2>Extra Q5 — orphan</h2>
+<ul>
+<li>Parent <code>exit</code> immediately; child <code>sleep(5)</code>.  </li>
+<li>Child still running, parent dead → <strong>orphan</strong>.  </li>
+<li>PPID <strong>before</strong> = real parent. <strong>After</strong> sleep = <strong>1</strong> (<code>init</code> / macOS <code>launchd</code>).  </li>
+<li>Opposite of zombie: zombie = child dead parent alive; orphan = parent dead child alive.</li>
+</ul>
+<h2>Extra Q6 — wait(&amp;status)</h2>
+<p>Child <code>exit(42)</code>. Parent <code>WIFEXITED</code> then <code>WEXITSTATUS</code>. Also <code>status &gt;&gt; 8</code>.</p>
+<hr />
+<h1>Data types cheat sheet (whole ASS 1–5)</h1>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Signed?</th>
+<th>Typical use</th>
+<th>Header / comes from</th>
+<th>Lab</th>
+<th>Failure / sentinel</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>int</code></td>
+<td>signed</td>
+<td>counts, <code>status</code>, loop indices</td>
+<td>built-in</td>
+<td>all C</td>
+<td><code>getc</code> must be <code>int</code></td>
+</tr>
+<tr>
+<td><code>char</code> / <code>char[]</code></td>
+<td>implementation</td>
+<td>letters, line buffers</td>
+<td>built-in</td>
+<td>3</td>
+<td><code>'\0'</code> ends a string</td>
+</tr>
+<tr>
+<td><code>char *</code></td>
+<td>pointer</td>
+<td>C strings, <code>argv</code>, paths</td>
+<td>—</td>
+<td>3–5</td>
+<td><code>NULL</code> = missing</td>
+</tr>
+<tr>
+<td><code>unsigned int</code></td>
+<td>unsigned</td>
+<td><code>%u</code> values</td>
+<td>built-in</td>
+<td>3 Q3</td>
+<td>wrap on overflow</td>
+</tr>
+<tr>
+<td><code>double</code></td>
+<td>floating</td>
+<td><code>%f %e %g</code></td>
+<td>built-in</td>
+<td>3 Q3</td>
+<td><code>printf</code> wants double</td>
+</tr>
+<tr>
+<td><code>long</code> / <code>long long</code></td>
+<td>signed</td>
+<td>printing sizes/inodes</td>
+<td>built-in</td>
+<td>4</td>
+<td>cast <code>st_ino</code> to <code>unsigned long long</code></td>
+</tr>
+<tr>
+<td><code>pid_t</code></td>
+<td>signed</td>
+<td>PIDs</td>
+<td><code>sys/types.h</code></td>
+<td>5</td>
+<td><code>fork</code> −1 error, 0 child</td>
+</tr>
+<tr>
+<td><code>uid_t</code></td>
+<td>integer</td>
+<td>user id</td>
+<td><code>sys/types.h</code></td>
+<td>3 extra, 4</td>
+<td><code>getuid()</code></td>
+</tr>
+<tr>
+<td><code>gid_t</code></td>
+<td>integer</td>
+<td>group id</td>
+<td><code>sys/types.h</code></td>
+<td>4</td>
+<td><code>st_gid</code></td>
+</tr>
+<tr>
+<td><code>mode_t</code></td>
+<td>bits</td>
+<td>permissions</td>
+<td><code>sys/stat.h</code></td>
+<td>3 extra, 4</td>
+<td><code>0644</code></td>
+</tr>
+<tr>
+<td><code>off_t</code></td>
+<td>signed</td>
+<td>file offset, <code>st_size</code></td>
+<td><code>sys/types.h</code></td>
+<td>3 extra</td>
+<td><code>lseek</code> → <code>(off_t)-1</code></td>
+</tr>
+<tr>
+<td><code>ssize_t</code></td>
+<td>signed</td>
+<td><code>read</code>/<code>write</code>/<code>readlink</code> count</td>
+<td><code>unistd.h</code></td>
+<td>3 extra, 4</td>
+<td><code>−1</code> error; <code>0</code> EOF on <code>read</code></td>
+</tr>
+<tr>
+<td><code>size_t</code></td>
+<td>unsigned</td>
+<td><code>sizeof</code>, <code>strlen</code></td>
+<td><code>stddef.h</code></td>
+<td>3 extra</td>
+<td>never −1</td>
+</tr>
+<tr>
+<td><code>time_t</code></td>
+<td>integer</td>
+<td>Unix time seconds</td>
+<td><code>time.h</code></td>
+<td>4</td>
+<td>pass address to <code>ctime</code></td>
+</tr>
+<tr>
+<td><code>FILE *</code></td>
+<td>pointer</td>
+<td>stdio stream</td>
+<td><code>stdio.h</code></td>
+<td>3</td>
+<td><code>NULL</code></td>
+</tr>
+<tr>
+<td><code>DIR *</code></td>
+<td>pointer</td>
+<td>directory stream</td>
+<td><code>dirent.h</code></td>
+<td>extras</td>
+<td><code>NULL</code></td>
+</tr>
+<tr>
+<td><code>struct stat</code></td>
+<td>struct</td>
+<td>inode snapshot</td>
+<td><code>sys/stat.h</code></td>
+<td>3 extra, 4</td>
+<td>fill via <code>stat</code></td>
+</tr>
+<tr>
+<td><code>struct dirent</code></td>
+<td>struct</td>
+<td>one <code>readdir</code> record</td>
+<td><code>dirent.h</code></td>
+<td>extras</td>
+<td><code>d_name</code> is not a full path</td>
+</tr>
+<tr>
+<td><code>void *</code></td>
+<td>pointer</td>
+<td><code>%p</code></td>
+<td>—</td>
+<td>3 Q3</td>
+<td>cast required for <code>%p</code></td>
+</tr>
+</tbody>
+</table>
+<p><code>int main(void)</code> — no args. <code>int main(int argc, char *argv[])</code> — command-line input.</p>
+<hr />
+<h1>Signals and <code>kill</code> (Lab 1, useful in Lab 5 talk)</h1>
+<table>
+<thead>
+<tr>
+<th>Signal</th>
+<th>Number</th>
+<th>How you send it</th>
+<th>Default action</th>
+<th>Catchable?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SIGTERM</td>
+<td>15</td>
+<td><code>kill PID</code></td>
+<td>terminate</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>SIGKILL</td>
+<td>9</td>
+<td><code>kill -9 PID</code></td>
+<td>terminate</td>
+<td><strong>no</strong></td>
+</tr>
+<tr>
+<td>SIGINT</td>
+<td>2</td>
+<td><code>Ctrl+C</code></td>
+<td>terminate</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>SIGTSTP</td>
+<td>20/18</td>
+<td><code>Ctrl+Z</code></td>
+<td>stop (job control)</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>SIGCHLD</td>
+<td>17</td>
+<td>kernel, when child exits</td>
+<td>ignore / wait</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p>A <strong>zombie</strong> is already dead; <code>kill -9</code> on it does nothing useful. Reap with <code>wait</code>, or kill the <strong>parent</strong>.</p>
+<hr />
+<h1>Rapid-fire (practise out loud)</h1>
+<ol>
+<li><code>who</code> vs <code>whoami</code>?  </li>
+<li><code>ls -l</code> vs <code>ls -a</code> vs <code>ls -lu</code>?  </li>
+<li><code>date</code> what does it print? format <code>date +%H:%M:%S</code>?  </li>
+<li><code>chmod 755</code> bits?  </li>
+<li><code>rmdir</code> on non-empty?  </li>
+<li><code>$#</code> <code>$0</code> <code>$1</code>?  </li>
+<li><code>[ -f ]</code> vs <code>[ -d ]</code> vs <code>[ -e ]</code>?  </li>
+<li>Why <code>expr $a \* $b</code> backslash?  </li>
+<li><code>case</code> ends with? (<code>esac</code>)  </li>
+<li><code>grep -w</code> vs <code>strstr</code>?  </li>
+<li>Why is <code>getc</code> assigned to <code>int</code>?  </li>
+<li><code>fopen</code> failure value?  </li>
+<li><code>%d</code> vs <code>%u</code> vs <code>%x</code> vs <code>%s</code> vs <code>%p</code>?  </li>
+<li><code>SEEK_SET</code> <code>SEEK_CUR</code> <code>SEEK_END</code>?  </li>
+<li>inode stores name? (<strong>no</strong>)  </li>
+<li><code>stat</code> vs <code>lstat</code>?  </li>
+<li>hard link nlink? same inode?  </li>
+<li>soft link own inode? <code>readlink</code>?  </li>
+<li><code>unlink</code> deletes data always? (<strong>only if last name and not open</strong>)  </li>
+<li><code>fork</code> three returns?  </li>
+<li><code>exec</code> return on success? (<strong>never</strong>)  </li>
+<li><code>execl</code> last argument? (<strong>NULL</strong>)  </li>
+<li>zombie vs orphan?  </li>
+<li><code>WEXITSTATUS</code> which byte?  </li>
+<li>PID of init? (<strong>1</strong>)  </li>
+<li><code>wait(NULL)</code> vs <code>wait(&amp;status)</code>?  </li>
+<li>Why <code>fflush</code> before <code>getchar</code> in more?  </li>
+<li><code>ps</code> STAT <code>Z</code>?  </li>
+<li><code>sleep</code> argument unit? (<strong>seconds</strong>)  </li>
+<li><code>wc -l</code> on <code>who</code> counts what?</li>
+</ol>
+<p>If you can answer these without looking, you are ready for Labs 1–5.</p>
+<hr />
+<h1>What lives in <em>your</em> folders (so you don’t freeze)</h1>
+<table>
+<thead>
+<tr>
+<th>Lab</th>
+<th>Q</th>
+<th>File</th>
+<th>Language</th>
+<th>What it does</th>
+<th>Commands / calls to name in viva</th>
+<th>How you run it</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>1</td>
+<td>(commands)</td>
+<td>shell</td>
+<td>all listed UNIX commands</td>
+<td><code>who</code> <code>date</code> <code>ls -l</code> <code>chmod</code> <code>grep</code> <code>ps</code> <code>kill</code></td>
+<td>type them</td>
+</tr>
+<tr>
+<td>1</td>
+<td>2</td>
+<td><code>sample.sh</code></td>
+<td>bash</td>
+<td>list <code>*.c</code> in a directory</td>
+<td><code>read</code>, <code>[ -d ]</code>, <code>ls dir/*.c</code></td>
+<td><code>./sample.sh</code> then dirname</td>
+</tr>
+<tr>
+<td>1</td>
+<td>3</td>
+<td><code>sample.sh</code></td>
+<td>bash</td>
+<td>date/time + login count</td>
+<td><code>date</code>, <code>who \| wc -l</code></td>
+<td><code>./sample.sh</code></td>
+</tr>
+<tr>
+<td>1</td>
+<td>4</td>
+<td><code>sample.sh</code></td>
+<td>bash</td>
+<td>lines with word manipal</td>
+<td><code>[ -f ]</code>, <code>grep -n -w</code></td>
+<td>enter filename</td>
+</tr>
+<tr>
+<td>1</td>
+<td>5</td>
+<td><code>sample.sh</code></td>
+<td>bash</td>
+<td>print line range</td>
+<td><code>$#</code>, <code>sed -n 's,e p'</code></td>
+<td><code>./sample.sh file 2 5</code></td>
+</tr>
+<tr>
+<td>2</td>
+<td>1</td>
+<td><code>sample.sh</code></td>
+<td>bash</td>
+<td>string length ≥ 10</td>
+<td><code>expr : '.*'</code>, <code>case</code> <code>esac</code></td>
+<td>stdin string</td>
+</tr>
+<tr>
+<td>2</td>
+<td>2</td>
+<td><code>sample.sh</code></td>
+<td>bash</td>
+<td>delete name clashes in d2</td>
+<td><code>basename</code>, <code>[ -f ]</code>, <code>rm</code></td>
+<td><code>./sample.sh d1 d2</code></td>
+</tr>
+<tr>
+<td>2</td>
+<td>3</td>
+<td><code>sample.sh</code></td>
+<td>bash</td>
+<td>rename to UPPER</td>
+<td><code>tr</code>, <code>mv</code>, <code>-e</code> <code>-ef</code></td>
+<td><code>./sample.sh hello.txt</code></td>
+</tr>
+<tr>
+<td>2</td>
+<td>4</td>
+<td><code>sample.sh</code></td>
+<td>bash</td>
+<td>perm size name mtime atime</td>
+<td><code>ls -l</code>, <code>ls -lu</code>, <code>awk</code>, <code>printf</code></td>
+<td><code>./sample.sh notes.txt</code></td>
+</tr>
+<tr>
+<td>2</td>
+<td>5</td>
+<td><code>sample.sh</code></td>
+<td>bash</td>
+<td>n!</td>
+<td><code>while</code>, <code>expr \*</code></td>
+<td>enter n</td>
+</tr>
+<tr>
+<td>2</td>
+<td>extra</td>
+<td><code>q6/sample.sh</code></td>
+<td>bash</td>
+<td>merge unique numeric</td>
+<td><code>sort -n -u</code></td>
+<td>two files</td>
+</tr>
+<tr>
+<td>2</td>
+<td>extra</td>
+<td><code>q7/sample.sh</code></td>
+<td>bash</td>
+<td>quadratic roots</td>
+<td><code>bc</code>, <code>case</code> on discriminant</td>
+<td>a b c</td>
+</tr>
+<tr>
+<td>3</td>
+<td>1</td>
+<td><code>sample.c</code></td>
+<td>C</td>
+<td>mini grep</td>
+<td><code>fopen</code> <code>fgets</code> <code>strstr</code> <code>fclose</code></td>
+<td><code>./sample word file</code></td>
+</tr>
+<tr>
+<td>3</td>
+<td>2</td>
+<td><code>sample.c</code></td>
+<td>C</td>
+<td>mini more</td>
+<td><code>fgets</code>, <code>fflush</code>, <code>getchar</code></td>
+<td><code>./sample longfile.txt</code></td>
+</tr>
+<tr>
+<td>3</td>
+<td>3</td>
+<td><code>sample.c</code></td>
+<td>C</td>
+<td>printf specifiers</td>
+<td><code>%d %x %f %s %p</code> flags</td>
+<td><code>./sample</code></td>
+</tr>
+<tr>
+<td>3</td>
+<td>4</td>
+<td><code>sample.c</code></td>
+<td>C</td>
+<td>char copy</td>
+<td><code>getc</code> <code>putc</code> <code>int ch</code> until <code>EOF</code></td>
+<td><code>./sample src dest</code></td>
+</tr>
+<tr>
+<td>3</td>
+<td>extra</td>
+<td><code>q5/sample.c</code></td>
+<td>C</td>
+<td>others-read on your <code>.c</code></td>
+<td><code>opendir</code> <code>getuid</code> <code>chmod</code> <code>S_IROTH</code></td>
+<td><code>./sample [dir]</code></td>
+</tr>
+<tr>
+<td>3</td>
+<td>extra</td>
+<td><code>q6/sample.c</code></td>
+<td>C</td>
+<td>copy file thirds</td>
+<td><code>open</code> <code>lseek</code> <code>read</code> <code>write</code></td>
+<td><code>./sample file</code></td>
+</tr>
+<tr>
+<td>4</td>
+<td>1</td>
+<td><code>sample.c</code></td>
+<td>C</td>
+<td>print inode</td>
+<td><code>stat</code>, <code>st_ino</code></td>
+<td><code>./sample notes.txt</code></td>
+</tr>
+<tr>
+<td>4</td>
+<td>2</td>
+<td><code>sample.c</code></td>
+<td>C</td>
+<td>dump <code>struct stat</code></td>
+<td>every <code>st_*</code> + <code>ctime</code></td>
+<td><code>./sample notes.txt</code></td>
+</tr>
+<tr>
+<td>4</td>
+<td>3</td>
+<td><code>sample.c</code></td>
+<td>C</td>
+<td>hard link then unlink</td>
+<td><code>link</code> <code>unlink</code> <code>st_nlink</code></td>
+<td><code>./sample original.txt</code></td>
+</tr>
+<tr>
+<td>4</td>
+<td>4</td>
+<td><code>sample.c</code></td>
+<td>C</td>
+<td>soft link then unlink</td>
+<td><code>symlink</code> <code>readlink</code> <code>lstat</code></td>
+<td><code>./sample original.txt</code></td>
+</tr>
+<tr>
+<td>4</td>
+<td>extra</td>
+<td><code>q5/sample.c</code></td>
+<td>C</td>
+<td>inodes in a directory</td>
+<td><code>readdir</code> <code>stat</code></td>
+<td><code>./sample ../q1</code></td>
+</tr>
+<tr>
+<td>4</td>
+<td>extra</td>
+<td><code>q6/sample.c</code></td>
+<td>C</td>
+<td>stat every file in dir</td>
+<td>same + print_stat</td>
+<td><code>./sample ../q1</code></td>
+</tr>
+<tr>
+<td>5</td>
+<td>1</td>
+<td><code>sample.c</code></td>
+<td>C</td>
+<td>parent waits</td>
+<td><code>fork</code> <code>wait</code> <code>sleep</code></td>
+<td><code>./sample</code></td>
+</tr>
+<tr>
+<td>5</td>
+<td>2</td>
+<td><code>sample.c</code></td>
+<td>C</td>
+<td>child exec Q1</td>
+<td><code>execl("./program1", ...)</code></td>
+<td>compile Q1 as <code>program1</code> first</td>
+</tr>
+<tr>
+<td>5</td>
+<td>3</td>
+<td><code>sample.c</code></td>
+<td>C</td>
+<td>PID PPID fork-return</td>
+<td><code>getpid</code> <code>getppid</code></td>
+<td><code>./sample</code></td>
+</tr>
+<tr>
+<td>5</td>
+<td>4</td>
+<td><code>sample.c</code></td>
+<td>C</td>
+<td>zombie</td>
+<td>child <code>exit</code>, parent <code>sleep</code> no <code>wait</code></td>
+<td><code>./sample &amp;</code> then <code>ps -l</code></td>
+</tr>
+<tr>
+<td>5</td>
+<td>extra</td>
+<td><code>q5/sample.c</code></td>
+<td>C</td>
+<td>orphan</td>
+<td>parent <code>exit</code>, child <code>sleep</code>, PPID→1</td>
+<td><code>./sample</code></td>
+</tr>
+<tr>
+<td>5</td>
+<td>extra</td>
+<td><code>q6/sample.c</code></td>
+<td>C</td>
+<td>exit code 42</td>
+<td><code>wait(&amp;status)</code> <code>WEXITSTATUS</code></td>
+<td><code>./sample</code></td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>
