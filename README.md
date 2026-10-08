@@ -109,6 +109,5 @@ printf '\n\n' | ./sample longfile.txt
 
 ## Notes
 
-- Extra question folders (`lab2/q6`–`q7`, `q5`/`q6` in labs 3–6) are gitignored. They stay on this machine and on the download site.
 - Compiled binaries (`sample`, `*.o`, `a.out`) are gitignored. Rebuild them with `gcc` as shown above.
 - Some scripts and programs read from stdin (`read` in shell, `getchar` in C). Pipe input or type it when prompted.

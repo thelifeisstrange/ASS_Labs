@@ -1,0 +1,25 @@
+LAB 5 - Process creation: fork, wait, exec, zombie, orphan
+
+1. Write a C program to block a parent process until the child completes
+   using a wait() system call.
+
+2. Write a C program to load the binary executable of the previous program
+   in a child process using the exec system call.
+
+3. Write a program to create a child process. Display the process IDs of the
+   process, parent and child (if any) in both the parent and child processes.
+
+4. Create a zombie (defunct) child process (a child with exit() call, but no
+   corresponding wait() in the sleeping parent) and allow the init process to
+   adopt it (after parent terminates). Run the process as a background process
+   and run the "ps" command.
+
+Additional Exercises:
+
+1. Create an orphan process (parent dies before child – adopted by "init"
+   process) and display the PID of the parent of the child before and after it
+   becomes orphan. Use sleep(n) in the child to delay the termination.
+
+2. Modify the program in the previous question to include wait(&status) in
+   the parent and to display the exit return code (leftmost byte of status) of
+   the child.
