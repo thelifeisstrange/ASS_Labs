@@ -1,0 +1,55 @@
+LAB 7 - Memory management
+
+1. If you wish to implement Best Fit, First Fit, Next Fit, or Worst Fit
+   memory allocation policy, it is probably best to do this by describing
+   the memory as a linked list:
+
+   struct mab {
+       int offset;
+       int size;
+       int allocated;
+       struct mab *next;
+       struct mab *prev;
+   };
+   typedef struct mab Mab;
+   typedef Mab *MabPtr;
+
+   Either way, the following set of prototypes give a guide to the
+   functionality you will need to provide:
+
+   MabPtr memChk(MabPtr m, int size);   // check if memory available
+   MabPtr memAlloc(MabPtr m, int size); // allocate a memory block
+   MabPtr memFree(MabPtr m);            // free a memory block
+   MabPtr memMerge(MabPtr m);           // merge two memory blocks
+   MabPtr memSplit(MabPtr m, int size); // split a memory block
+
+2. Write a C program using malloc for implementing Multilevel Feedback
+   Queue using three queues, with each of them working with different
+   scheduling policies.
+
+3. We have five segments numbered 0 through 4. The segments are stored
+   in physical memory as shown in the following figure. Write a C program
+   to create a segment table. Write methods for converting a logical
+   address to a physical address. Compute the physical address for the
+   following:
+   (i)   53 byte of segment 2
+   (ii)  852 byte of segment 3
+   (iii) 1222 byte of segment 0
+
+   Physical memory layout (Fig.):
+     14000-26000  segment 0
+     26000-32000  free
+     32000-43000  segment 3
+     43000-47000  segment 2
+     47000-57000  segment 4
+     57000-63000  free
+     63000-67000  segment 1
+
+4. Write a C program to simulate LRU approximation page replacement
+   using the second-chance algorithm. Find the total number of page
+   faults and hit ratio for the algorithm.
+
+Additional Exercises:
+
+1. Implement the simple concept of the Buddy system.
+2. How do you resize and release memory using realloc?

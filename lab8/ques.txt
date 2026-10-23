@@ -1,0 +1,18 @@
+LAB 8 - Process synchronization (semaphores)
+
+1. Modify the Producer-Consumer program so that a producer can produce
+   at most 10 items more than what the consumer has consumed.
+
+2. Write a C program for the first readers-writers problem using
+   semaphores.
+
+3. Write a program to access a shared resource which causes deadlock
+   using improper use of semaphore.
+
+4. Write a program using semaphore to demonstrate the working of the
+   Sleeping Barber problem.
+
+Additional Exercises:
+
+1. Write a C program for the Dining-Philosophers problem using monitors.
+2. Demonstrate the working of a counting semaphore.

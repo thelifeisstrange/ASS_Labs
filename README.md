@@ -63,6 +63,24 @@ Each lab has a `ques.txt` with the questions. Every question lives in its own fo
 - `q5/` — Matrix multiplication (one thread per result row)
 - `q6/` — Row sums and column sums in two threads
 
+### Lab 7 — Memory management
+
+- `q1/` — First / next / best / worst fit on a linked-list heap
+- `q2/` — Multilevel feedback queue (RR, longer RR, FCFS)
+- `q3/` — Segment table: logical to physical address
+- `q4/` — Second-chance (LRU approximation) page replacement
+- `q5/` — Buddy system
+- `q6/` — Resize and release memory with `realloc`
+
+### Lab 8 — Process synchronization (semaphores)
+
+- `q1/` — Producer-consumer; producer at most 10 items ahead
+- `q2/` — First readers-writers problem
+- `q3/` — Deadlock from locking two semaphores in opposite order
+- `q4/` — Sleeping barber
+- `q5/` — Dining philosophers with a monitor
+- `q6/` — Counting semaphore
+
 ## How to run
 
 ### Shell labs (Lab 1 and Lab 2)
@@ -73,7 +91,7 @@ chmod +x sample.sh
 echo 5 | ./sample.sh
 ```
 
-### C labs (Lab 3–Lab 6)
+### C labs (Lab 3–Lab 8)
 
 ```bash
 cd lab6/q1
@@ -100,6 +118,11 @@ gcc -pthread sample.c -o sample
 | 6 | Q4 | `./sample` |
 | 6 | Q5 | `./sample` |
 | 6 | Q6 | `./sample` |
+| 7 | Q1 | `./sample first` (or `next`, `best`, `worst`) |
+| 7 | Q2–Q6 | `./sample` |
+| 8 | Q1–Q6 | `gcc -pthread sample.c -o sample && ./sample` |
+
+Lab 8 Q3 prints a deadlock message after about 2 seconds (`alarm`), then exits.
 
 Lab 3 Q2 waits for Enter every 20 lines. To run it non-interactively:
 
