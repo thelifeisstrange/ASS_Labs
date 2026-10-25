@@ -1,4 +1,9 @@
-LAB 8 - Process synchronization (semaphores)
+LAB 8 - DEADLOCKS, LOCKING, SYNCHRONIZATION
+
+Topics: data races, mutex, semaphores, producer-consumer, first readers-writers,
+dining philosophers, sleeping barber.
+
+Lab Exercises:
 
 1. Modify the Producer-Consumer program so that a producer can produce
    at most 10 items more than what the consumer has consumed.

@@ -1,78 +1,31 @@
 #include <stdio.h>
 #include <pthread.h>
+#include <semaphore.h>
 #include <unistd.h>
 
-#define SLOTS 3
-#define USERS 6
+sem_t pool; /* 3 identical resources */
 
-typedef struct {
-    pthread_mutex_t lock;
-    pthread_cond_t cond;
-    int count;
-} sema_t;
-
-static void sema_init(sema_t *s, int v)
+void *work(void *a)
 {
-    pthread_mutex_init(&s->lock, NULL);
-    pthread_cond_init(&s->cond, NULL);
-    s->count = v;
-}
-
-static int sema_value(sema_t *s)
-{
-    pthread_mutex_lock(&s->lock);
-    int v = s->count;
-    pthread_mutex_unlock(&s->lock);
-    return v;
-}
-
-static void sema_wait(sema_t *s)
-{
-    pthread_mutex_lock(&s->lock);
-    while (s->count == 0)
-        pthread_cond_wait(&s->cond, &s->lock);
-    s->count--;
-    pthread_mutex_unlock(&s->lock);
-}
-
-static void sema_post(sema_t *s)
-{
-    pthread_mutex_lock(&s->lock);
-    s->count++;
-    pthread_cond_signal(&s->cond);
-    pthread_mutex_unlock(&s->lock);
-}
-
-static sema_t seats;
-
-void *user(void *arg)
-{
-    int id = *(int *)arg;
-    printf("user %d waits  (available=%d)\n", id, sema_value(&seats));
-    sema_wait(&seats);
-    printf("user %d sits   (available=%d)\n", id, sema_value(&seats));
-    usleep(150000);
-    sema_post(&seats);
-    printf("user %d leaves (available=%d)\n", id, sema_value(&seats));
-    return NULL;
+    int id = *(int *)a;
+    sem_wait(&pool);
+    printf("T%d got resource\n", id);
+    sleep(1);
+    sem_post(&pool);
+    printf("T%d released\n", id);
+    return a;
 }
 
 int main(void)
 {
-    pthread_t tid[USERS];
-    int id[USERS];
-
-    /* counting semaphore: 3 identical seats; up to 3 users at once */
-    sema_init(&seats, SLOTS);
-    printf("counting semaphore initial value = %d\n", SLOTS);
-
-    for (int i = 0; i < USERS; i++) {
+    pthread_t t[5];
+    int id[5];
+    sem_init(&pool, 0, 3);
+    for (int i = 0; i < 5; i++) {
         id[i] = i + 1;
-        pthread_create(&tid[i], NULL, user, &id[i]);
-        usleep(20000);
+        pthread_create(&t[i], NULL, work, &id[i]);
     }
-    for (int i = 0; i < USERS; i++)
-        pthread_join(tid[i], NULL);
-    printf("final available = %d\n", sema_value(&seats));
+    for (int i = 0; i < 5; i++)
+        pthread_join(t[i], NULL);
     return 0;
 }

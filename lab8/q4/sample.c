@@ -1,114 +1,58 @@
 #include <stdio.h>
 #include <pthread.h>
+#include <semaphore.h>
 #include <unistd.h>
 
-#define CHAIRS     3
-#define CUSTOMERS  8
+#define CHAIRS 3
+int waiting;
+sem_t mutex, cust, barb;
 
-typedef struct {
-    pthread_mutex_t lock;
-    pthread_cond_t cond;
-    int count;
-} sema_t;
-
-static void sema_init(sema_t *s, int v)
+void *barber(void *a)
 {
-    pthread_mutex_init(&s->lock, NULL);
-    pthread_cond_init(&s->cond, NULL);
-    s->count = v;
-}
-
-static void sema_wait(sema_t *s)
-{
-    pthread_mutex_lock(&s->lock);
-    while (s->count == 0)
-        pthread_cond_wait(&s->cond, &s->lock);
-    s->count--;
-    pthread_mutex_unlock(&s->lock);
-}
-
-static void sema_post(sema_t *s)
-{
-    pthread_mutex_lock(&s->lock);
-    s->count++;
-    pthread_cond_signal(&s->cond);
-    pthread_mutex_unlock(&s->lock);
-}
-
-static int waiting;
-static int served;
-static int leftover = CUSTOMERS;
-static sema_t mutex, customers, barber;
-
-static void customer_done(void)
-{
-    leftover--;
-    if (leftover == 0)
-        sema_post(&customers);
-}
-
-void *barber_fn(void *arg)
-{
-    (void)arg;
     for (;;) {
-        printf("barber: sleeping\n");
-        sema_wait(&customers);
-        sema_wait(&mutex);
-        if (waiting == 0) {
-            sema_post(&mutex);
-            break;
-        }
+        sem_wait(&cust);
+        sem_wait(&mutex);
         waiting--;
-        sema_post(&barber);
-        sema_post(&mutex);
-        printf("barber: cutting hair (waiting chairs: %d)\n", waiting);
-        usleep(120000);
-        served++;
+        sem_post(&barb);
+        sem_post(&mutex);
+        printf("barber cuts (waiting=%d)\n", waiting);
+        sleep(1);
     }
-    return NULL;
+    return a;
 }
 
-void *customer_fn(void *arg)
+void *customer(void *a)
 {
-    int id = *(int *)arg;
-    usleep(id * 40000);
-    sema_wait(&mutex);
+    int id = *(int *)a;
+    sem_wait(&mutex);
     if (waiting < CHAIRS) {
         waiting++;
-        printf("customer %d: sits (waiting chairs: %d)\n", id, waiting);
-        sema_post(&customers);
-        sema_post(&mutex);
-        sema_wait(&barber);
-        printf("customer %d: getting a haircut\n", id);
-        sema_wait(&mutex);
-        customer_done();
-        sema_post(&mutex);
+        printf("cust %d sits (waiting=%d)\n", id, waiting);
+        sem_post(&cust);
+        sem_post(&mutex);
+        sem_wait(&barb);
+        printf("cust %d done\n", id);
     } else {
-        printf("customer %d: shop full, leaves\n", id);
-        customer_done();
-        sema_post(&mutex);
+        printf("cust %d leaves\n", id);
+        sem_post(&mutex);
     }
-    return NULL;
+    return a;
 }
 
 int main(void)
 {
-    pthread_t tb, tc[CUSTOMERS];
-    int id[CUSTOMERS];
-
-    sema_init(&mutex, 1);
-    sema_init(&customers, 0);
-    sema_init(&barber, 0);
-
-    printf("sleeping barber, %d waiting chairs, %d customers\n", CHAIRS, CUSTOMERS);
-    pthread_create(&tb, NULL, barber_fn, NULL);
-    for (int i = 0; i < CUSTOMERS; i++) {
+    pthread_t b, t[5];
+    int id[5];
+    sem_init(&mutex, 0, 1);
+    sem_init(&cust, 0, 0);
+    sem_init(&barb, 0, 0);
+    pthread_create(&b, NULL, barber, NULL);
+    for (int i = 0; i < 5; i++) {
         id[i] = i + 1;
-        pthread_create(&tc[i], NULL, customer_fn, &id[i]);
+        pthread_create(&t[i], NULL, customer, &id[i]);
+        usleep(300000);
     }
-    for (int i = 0; i < CUSTOMERS; i++)
-        pthread_join(tc[i], NULL);
-    pthread_join(tb, NULL);
-    printf("shop closed, served %d\n", served);
+    for (int i = 0; i < 5; i++)
+        pthread_join(t[i], NULL);
     return 0;
 }

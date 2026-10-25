@@ -1,102 +1,49 @@
 #include <stdio.h>
 #include <pthread.h>
+#include <semaphore.h>
 #include <unistd.h>
 
-#define NREAD  4
-#define NWRITE 2
+int data, rcount;
+sem_t mutex, wrt;
 
-typedef struct {
-    pthread_mutex_t lock;
-    pthread_cond_t cond;
-    int count;
-} sema_t;
-
-static void sema_init(sema_t *s, int v)
+void *reader(void *a)
 {
-    pthread_mutex_init(&s->lock, NULL);
-    pthread_cond_init(&s->cond, NULL);
-    s->count = v;
+    int id = *(int *)a;
+    sem_wait(&mutex);
+    if (++rcount == 1)
+        sem_wait(&wrt);
+    sem_post(&mutex);
+    printf("R%d reads %d\n", id, data);
+    sleep(1);
+    sem_wait(&mutex);
+    if (--rcount == 0)
+        sem_post(&wrt);
+    sem_post(&mutex);
+    return a;
 }
 
-static void sema_wait(sema_t *s)
+void *writer(void *a)
 {
-    pthread_mutex_lock(&s->lock);
-    while (s->count == 0)
-        pthread_cond_wait(&s->cond, &s->lock);
-    s->count--;
-    pthread_mutex_unlock(&s->lock);
-}
-
-static void sema_post(sema_t *s)
-{
-    pthread_mutex_lock(&s->lock);
-    s->count++;
-    pthread_cond_signal(&s->cond);
-    pthread_mutex_unlock(&s->lock);
-}
-
-static int shared = 0;
-static int readcount;
-static sema_t mutex, wrt;
-
-void *reader(void *arg)
-{
-    int id = *(int *)arg;
-    for (int i = 0; i < 3; i++) {
-        sema_wait(&mutex);
-        readcount++;
-        if (readcount == 1)
-            sema_wait(&wrt);
-        sema_post(&mutex);
-
-        printf("reader %d  reads %d  (readers=%d)\n", id, shared, readcount);
-        usleep(50000);
-
-        sema_wait(&mutex);
-        readcount--;
-        if (readcount == 0)
-            sema_post(&wrt);
-        sema_post(&mutex);
-        usleep(30000);
-    }
-    return NULL;
-}
-
-void *writer(void *arg)
-{
-    int id = *(int *)arg;
-    for (int i = 0; i < 3; i++) {
-        sema_wait(&wrt);
-        shared += 10;
-        printf("writer %d  writes %d\n", id, shared);
-        usleep(70000);
-        sema_post(&wrt);
-        usleep(40000);
-    }
-    return NULL;
+    int id = *(int *)a;
+    sem_wait(&wrt);
+    data += 10;
+    printf("W%d writes %d\n", id, data);
+    sleep(1);
+    sem_post(&wrt);
+    return a;
 }
 
 int main(void)
 {
-    pthread_t r[NREAD], w[NWRITE];
-    int rid[NREAD], wid[NWRITE];
-
-    sema_init(&mutex, 1);
-    sema_init(&wrt, 1);
-
-    printf("first readers-writers: readers share; writers exclusive\n");
-    for (int i = 0; i < NREAD; i++) {
-        rid[i] = i + 1;
-        pthread_create(&r[i], NULL, reader, &rid[i]);
-    }
-    for (int i = 0; i < NWRITE; i++) {
-        wid[i] = i + 1;
-        pthread_create(&w[i], NULL, writer, &wid[i]);
-    }
-    for (int i = 0; i < NREAD; i++)
-        pthread_join(r[i], NULL);
-    for (int i = 0; i < NWRITE; i++)
-        pthread_join(w[i], NULL);
-    printf("final shared value = %d\n", shared);
+    pthread_t r[2], w[1];
+    int rid[] = {1, 2}, wid = 1;
+    sem_init(&mutex, 0, 1);
+    sem_init(&wrt, 0, 1);
+    pthread_create(&r[0], NULL, reader, &rid[0]);
+    pthread_create(&r[1], NULL, reader, &rid[1]);
+    pthread_create(&w[0], NULL, writer, &wid);
+    pthread_join(r[0], NULL);
+    pthread_join(r[1], NULL);
+    pthread_join(w[0], NULL);
     return 0;
 }

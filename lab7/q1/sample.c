@@ -3,31 +3,14 @@
 #include <string.h>
 
 typedef struct mab {
-    int offset;
-    int size;
-    int allocated;
-    struct mab *next;
-    struct mab *prev;
+    int offset, size, allocated;
+    struct mab *next, *prev;
 } Mab, *MabPtr;
 
-enum { FIRST, NEXT, BEST, WORST };
+MabPtr rover;
 
-static MabPtr rover;
-
-MabPtr memInit(int size)
+void show(MabPtr m)
 {
-    MabPtr m = malloc(sizeof(Mab));
-    m->offset = 0;
-    m->size = size;
-    m->allocated = 0;
-    m->next = m->prev = NULL;
-    rover = m;
-    return m;
-}
-
-static void print_map(MabPtr m)
-{
-    printf("  memory: ");
     for (; m; m = m->next)
         printf("[%d+%d %s] ", m->offset, m->size, m->allocated ? "used" : "free");
     printf("\n");
@@ -35,166 +18,104 @@ static void print_map(MabPtr m)
 
 MabPtr memSplit(MabPtr m, int size)
 {
-    if (!m || m->allocated || m->size < size)
-        return NULL;
     if (m->size == size)
         return m;
-
-    MabPtr rest = malloc(sizeof(Mab));
-    rest->offset = m->offset + size;
-    rest->size = m->size - size;
-    rest->allocated = 0;
-    rest->next = m->next;
-    rest->prev = m;
+    MabPtr r = malloc(sizeof(Mab));
+    r->offset = m->offset + size;
+    r->size = m->size - size;
+    r->allocated = 0;
+    r->next = m->next;
+    r->prev = m;
     if (m->next)
-        m->next->prev = rest;
-    m->next = rest;
+        m->next->prev = r;
+    m->next = r;
     m->size = size;
     return m;
 }
 
 MabPtr memMerge(MabPtr m)
 {
-    if (!m || m->allocated)
-        return m;
     while (m->next && !m->next->allocated) {
         MabPtr n = m->next;
         m->size += n->size;
         m->next = n->next;
         if (n->next)
             n->next->prev = m;
-        if (rover == n)
-            rover = m;
         free(n);
     }
-    while (m->prev && !m->prev->allocated) {
-        MabPtr p = m->prev;
-        p->size += m->size;
-        p->next = m->next;
-        if (m->next)
-            m->next->prev = p;
-        if (rover == m)
-            rover = p;
-        free(m);
-        m = p;
-    }
+    if (m->prev && !m->prev->allocated)
+        return memMerge(m->prev);
     return m;
 }
 
 MabPtr memFree(MabPtr m)
 {
-    if (!m)
-        return NULL;
     m->allocated = 0;
     return memMerge(m);
 }
 
-static MabPtr find_first(MabPtr start, int size)
+/* policy: 0 first, 1 next, 2 best, 3 worst */
+MabPtr memChk(MabPtr m, int size, int pol)
 {
-    for (MabPtr p = start; p; p = p->next)
-        if (!p->allocated && p->size >= size)
-            return p;
-    return NULL;
-}
-
-static MabPtr find_next(MabPtr head, int size)
-{
-    MabPtr p = rover ? rover : head;
-    MabPtr start = p;
+    MabPtr p = (pol == 1 && rover) ? rover : m, best = NULL, start = p;
     do {
-        if (!p->allocated && p->size >= size)
-            return p;
-        p = p->next ? p->next : head;
-    } while (p != start);
-    return NULL;
-}
-
-static MabPtr find_best(MabPtr start, int size)
-{
-    MabPtr best = NULL;
-    for (MabPtr p = start; p; p = p->next)
-        if (!p->allocated && p->size >= size)
-            if (!best || p->size < best->size)
+        if (!p->allocated && p->size >= size) {
+            if (pol == 0 || pol == 1)
+                return p;
+            if (pol == 2 && (!best || p->size < best->size))
                 best = p;
+            if (pol == 3 && (!best || p->size > best->size))
+                best = p;
+        }
+        p = p->next ? p->next : m;
+        if (pol != 1)
+            if (!p || p == start)
+                break;
+    } while (p != start);
     return best;
 }
 
-static MabPtr find_worst(MabPtr start, int size)
+MabPtr memAlloc(MabPtr head, int size, int pol)
 {
-    MabPtr worst = NULL;
-    for (MabPtr p = start; p; p = p->next)
-        if (!p->allocated && p->size >= size)
-            if (!worst || p->size > worst->size)
-                worst = p;
-    return worst;
-}
-
-MabPtr memChk(MabPtr m, int size, int policy)
-{
-    switch (policy) {
-    case NEXT:  return find_next(m, size);
-    case BEST:  return find_best(m, size);
-    case WORST: return find_worst(m, size);
-    default:    return find_first(m, size);
-    }
-}
-
-MabPtr memAlloc(MabPtr head, int size, int policy)
-{
-    MabPtr hole = memChk(head, size, policy);
-    if (!hole)
+    MabPtr h = memChk(head, size, pol);
+    if (!h)
         return NULL;
-    hole = memSplit(hole, size);
-    hole->allocated = 1;
-    rover = hole->next ? hole->next : head;
-    return hole;
+    h = memSplit(h, size);
+    h->allocated = 1;
+    rover = h->next ? h->next : head;
+    return h;
 }
 
-static int policy_of(const char *s)
+int main(int argc, char **argv)
 {
-    if (!strcmp(s, "next"))
-        return NEXT;
-    if (!strcmp(s, "best"))
-        return BEST;
-    if (!strcmp(s, "worst"))
-        return WORST;
-    return FIRST;
-}
+    int pol = 0, req[] = {100, 50, 200, 80, 30};
+    MabPtr b[5], heap = malloc(sizeof(Mab));
+    char *n[] = {"first", "next", "best", "worst"};
 
-int main(int argc, char *argv[])
-{
-    int policy = policy_of(argc > 1 ? argv[1] : "first");
-    const char *name[] = { "first-fit", "next-fit", "best-fit", "worst-fit" };
-    int req[] = { 100, 50, 200, 80, 30 };
-    MabPtr blocks[5] = { 0 };
-    MabPtr heap = memInit(500);
-
-    printf("Policy: %s  (heap size 500)\n", name[policy]);
-    print_map(heap);
-
+    if (argc > 1) {
+        if (!strcmp(argv[1], "next"))
+            pol = 1;
+        else if (!strcmp(argv[1], "best"))
+            pol = 2;
+        else if (!strcmp(argv[1], "worst"))
+            pol = 3;
+    }
+    heap->offset = heap->allocated = 0;
+    heap->size = 500;
+    heap->next = heap->prev = NULL;
+    rover = heap;
+    printf("%s-fit\n", n[pol]);
+    show(heap);
     for (int i = 0; i < 5; i++) {
-        blocks[i] = memAlloc(heap, req[i], policy);
-        printf("alloc %d -> offset %d\n", req[i],
-               blocks[i] ? blocks[i]->offset : -1);
-        print_map(heap);
+        b[i] = memAlloc(heap, req[i], pol);
+        printf("alloc %d @ %d\n", req[i], b[i]->offset);
+        show(heap);
     }
-
-    printf("free block of size %d at %d\n", req[1], blocks[1]->offset);
-    memFree(blocks[1]);
-    print_map(heap);
-
-    printf("free block of size %d at %d\n", req[3], blocks[3]->offset);
-    memFree(blocks[3]);
-    print_map(heap);
-
-    MabPtr extra = memAlloc(heap, 70, policy);
-    printf("alloc 70 -> offset %d\n", extra ? extra->offset : -1);
-    print_map(heap);
-
-    while (heap) {
-        MabPtr n = heap->next;
-        free(heap);
-        heap = n;
-    }
+    memFree(b[1]);
+    memFree(b[3]);
+    printf("after free 50 and 80:\n");
+    show(heap);
+    printf("alloc 70 @ %d\n", memAlloc(heap, 70, pol)->offset);
+    show(heap);
     return 0;
 }

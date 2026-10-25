@@ -122,7 +122,7 @@ gcc -pthread sample.c -o sample
 | 7 | Q2–Q6 | `./sample` |
 | 8 | Q1–Q6 | `gcc -pthread sample.c -o sample && ./sample` |
 
-Lab 8 Q3 prints a deadlock message after about 2 seconds (`alarm`), then exits.
+Lab 8 Q3 deadlocks on purpose; stop it with Ctrl+C after the message (or `kill` the process).
 
 Lab 3 Q2 waits for Enter every 20 lines. To run it non-interactively:
 
